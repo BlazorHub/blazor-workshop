@@ -116,7 +116,7 @@ Try this out and verify that everything still works. In particular, verify that 
 
 ## Exploring state changes
 
-This is a good opportunity to explore how state changes and rendering work in Blazor, and how `EventCallback` solves some common problems. The detail of what are happening now became more complicated now that `OrderState` involved.
+This is a good opportunity to explore how state changes and rendering work in Blazor, and how `EventCallback` solves some common problems. The details of what is happening become more complicated now that `OrderState` is involved.
 
 `EventCallback` tells Blazor to dispatch the event notification (and rendering) to the component that defined the event handler. If the event handler is not defined by a component (`OrderState`) then it will substitute the component that *hooked up* the event handler (`Index`).
 
@@ -129,7 +129,7 @@ So let's sum up what the *AppState pattern* provides:
 - `EventCallback` takes care of dispatching change notifications
 
 We've covered a lot of information as well about rendering and eventing:
-- Components re-render when parameters change or they recieve an event
+- Components re-render when parameters change or they receive an event
 - Dispatching of events depends on the event handler delegate target
 - Use `EventCallback` to have the most flexible and friendly behavior for dispatching events
 
