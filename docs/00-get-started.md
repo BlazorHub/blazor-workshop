@@ -1,13 +1,14 @@
-# Get started
+# 入门
 
-In this session, you'll setup your machine for Blazor development and build your first Blazor app.
+在本课程中，您将为Blazor开发设置计算机，并构建您的第一个Blazor应用程序。
 
-## Setup
 
-To get started with Blazor, follow the instructions on https://aka.ms/blazor-getting-started.
+## 安装
 
-## Build your first app
+要开始使用blazor , 请按照 [ASP.NET Core Blazor 入门](https://docs.microsoft.com/zh-cn/aspnet/core/blazor/get-started) 说明进行操作.
 
-Once you have your first Blazor app running, try [building your first Blazor app](https://docs.microsoft.com/aspnet/core/tutorials/build-your-first-blazor-app).
+## 构建第一个Blazor应用程序
 
-Next up - [Components and layout](01-components-and-layout.md)
+一旦运行了第一个Blazor应用程序， 请尝试 [构建你的第一个 Blazor 应用程序](https://docs.microsoft.com/aspnet/core/tutorials/build-your-first-blazor-app).
+
+下一步 - [组件和布局](01-components-and-layout.md)

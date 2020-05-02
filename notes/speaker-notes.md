@@ -1,258 +1,230 @@
-# Speaker notes
+# 演讲者备注
 
-This is a rough guide of what topics are best to introduce with each section.
+这是介绍每节中哪些主题的粗略指南.
 
-## 00 Starting point
+## 00 起步
 
-- Introduce presenters
-- Have attendees introduce themselves if the group is small
-- What is Blazor
-- Current Status and future roadmap for Blazor/Components (if appropriate)
-- Machine Setup
-- Create a hello world project
+- 介绍演讲者
+- H如果小组人数不多，请与会者自我介绍
+- Blazor 是什么
+- Blazor /组件的当前状态和未来路线图
+- 机器设置
+- 创建一个hello world项目
 
-## 01 Components and layout
+## 01 组件和布局
 
-- Introduce @page - explain the difference between routable and non-routable
-- Show the Router component in App.razor
-- Introduce `@code` - this is like the old `@functions` feature from `.cshtml`. Get users comfortable with the idea of defining properties, fields, methods, even nested classes
-- Components are stateful so have a place to keep state in components is useful
-- Introduce parameters - parameters should be non-public
-- Introduce using a component from markup in razor - show how to pass parameters
-- Introduce @inject and DI - can show how that's a shorthand for a property in @code
-- Introduce http + JSON in Blazor (`GetFromJsonAsync`)
-- Talk about async and the interaction with rendering 
-- Introduce `OnInitializedAsync` and the common pattern of starting async work
-- Introduce @layout - mention that `_Imports.razor` is the most common way to hook it up
+- 介绍@page-解释可路由和不可路由之间的区别
+- 在App.razor中显示路由器组件
+- 介绍@code-这就像的旧.cshtml @functions功能 。使用户熟悉定义属性，字段，方法，甚至嵌套类
+- 组件是有状态的，因此有必要在组件中保持状态
+- 介绍 parameters - parameters 应该是 none-public
+- 在razor中使用标记中的组件进行介绍-展示如何传递参数  
+- 介绍@inject和DI-可以显示@code中属性的简写方式 
+- 在Blazor中引入http + JSON (`GetFromJsonAsync`)
+- 讨论异步以及与渲染的交互 
+- 介绍 `OnInitializedAsync` 和启动异步工作的常见模式
+- 介绍@layout-提到这 `_Imports.razor` 是连接它的最常见方法  
 
-*demos: All of the above can just be introduced with the template*
+* 演示：以上所有内容都可以通过模板进行介绍 * 
 
-## 02 Customize a pizza
+## 02 定制披萨
 
-- Introduce event handlers and delegates, different options like method groups, lambdas, event args types, async
-- What happens when you update the private state of a component? Walk through and event handler -> update -> re-render
-- Defining your own components and accepting parameters
-- Mention passing delegates to another component
-- Show how re-rendering is different when using delegates, and show `EventCallback` as the fix
-- Mention putting common or repeated functionality on model classes
-- Introduce input elements and how manual two-way binding can be used (combination of `value` and `@onchange`)
-- Show `@bind` as a shorthand for the above
-- Show `@bind-value` + `@bind-value:event` as a more speciic version
-- Mention that the framework tries to define `@bind` to do the default thing for common input types, but it's possible to specify what you want to bind
+- 介绍事件处理程序和委托，不同的选项，例如方method groups, lambdas, event args types, async
+- 更新组件的私有状态后会发生什么？走一遍事件处理程序->更新->重新渲染 
+- 定义自己的组件并接受参数  
+- 提及将委托传递给另一个组件 
+- 展示使用委托时重新渲染的不同之处，并展示 `EventCallback` 来修复
+- 提及将常见或重复的功能放在模型类上  
+- 介绍输入元素以及如何使用手动双向绑定 (组合 `value` 和 `@onchange`)
+- 展示 `@bind` 是上面的简写
+- 展示 `@bind-value` + `@bind-value:event` 作为更具体的版本
+- 提及框架尝试定义`@bind` 对常见输入类型执行默认操作，但是可以指定要绑定的内容 
 
-*demos: TodoList, with multiple levels of components*
- - Create basic todo list example with TodoItem.cs and TodoList.razor being a self-contained UI
-   - See that your "add item" event handler can be an inline lambda, but it's nicer to make a method
-   - See how you can make the handler async if you want (e.g., with a Task.Delay) and it re-renders correctly
- - On the textbox where the user enters a new item, also display the current value
-   - See it only updates when you tab out
-   - Use `@bind-value:event="oninput"`
- - Factor out a `TodoListEditor` component that takes readonly `Text` and `IsDone` parameters
-   - Initially, it's a one-way binding. How do we propagate changes back to the parent?
-   - Add an `IsDoneChanged` parameter and invoke a callback that manually updates model and calls `StateHasChanged`
-   - Replace with `@bind-IsDone` (change param type to `EventCallback<bool>`).
+* 演示：TodoList，具有多个级别的组件 *
+ - 使用TodoItem.cs 和TodoList.razor 作为独立的UI创建基本的待办事项列表   
+   - 看到您的“添加项目”事件处理程序可以是内联lambda，但是创建方法会更好  
+   - 了解如何根据需要使处理程序异步 (例如使用 Task.Delay) 并正确重新渲染
+ - 在用户 在文本框中输入新内容 ，也显示当前值  
+   - 仅当您跳出时才能看到更新 
+   - 使用 `@bind-value:event="oninput"`
+ -分解出  `TodoListEditor` 组件 具有只读 `Text` 和 `IsDone` 参数
+   - 最初，它是单向绑定。我们如何将更改传播回父级？
+   - 添加 `IsDoneChanged` 参数并调用回调 并调用`StateHasChanged` 手动更新模型 
+   - 替换为 `@bind-IsDone` (将参数类型更改为 `EventCallback<bool>`).
 
-## 03 Show order status
+## 03 显示订单状态
 
-- `NavLink` in more detail, why would you use `NavLink` instead of an `<a>`
-- base href and how URL navigation works in blazor (how do you generate a URL)
-- @page and routing (again)
-- route parameter constraints
-- reminders about async, inject, http, json
-- difference between `OnInitializedAsync` and `OnParametersSetAsync`
-- Introduce `StateHasChanged` with the context about background processing
-- introduce `@implements` - implementing an interface
-- introduce `Dispose` as the counterpart to `OnInitialized`
-- introduce `NavigationManager` and programmatic navigation
+- 详细讲解 `NavLink`  , 为什么你要用 `NavLink` 替代 `<a>`
+- 基本href以及URL导航在blazor中的工作方式 (如何生成 URL)
+- @page 和路由 (再一次)
+- 路由参数约束
+- 关于 async, inject, http, json 的相关提醒
+-  `OnInitializedAsync` 和  `OnParametersSetAsync` 的差别
+- 介绍 `StateHasChanged` 有关后台处理的上下文
+- 介绍 `@implements` -  实现接口
+- 介绍 `Dispose` 作为 `OnInitialized` 的对口
+- 介绍 `NavigationManager` 和程序化导航
 
-*demos: a counter with a timer*
- - In `NavMenu.razor`, replace all `<NavLink>` with `<a>` and see how it still works, except no highlighting
-   - Switch back to `<NavLink>` and see it still renders `<a>` tags except with "active" class
-   - See how you can modify the active class
-   - Explain `NavLinkMatch`
-   - Explain why the URLs aren't prefixed with `/` because of `<base href>`
- - Modify `Counter.razor` to take an initial `startCount` param
-   - Try visiting it with a non-int param value. Add `:int` route constraint.
-   - Customize the "not found" message
- - Demo programmatic navigation: In `Counter`, if the count exceeds 5, auto-navigate to `Index`
- - Recap the purpose of all the lifecycle methods, noting that there's a hidden one ("dispose")
- - In `Counter.razor`, make `OnInitialized` start up a timer that increments count *and* logs to console
-   - See that if you navigate in and out repeatedly, you have multiple timers
-   - Fix by implementing `IDisposable`
+* 演示：带有计时器的计数器 *
+ - 在 `NavMenu.razor` 里, 把所有 `<NavLink>` 都用 `<a>` 替换 看他如何工作, 除了不突出显示
+   - 切换回到 `<NavLink>` 并看到仍然呈现 `<a>` 标签 "active" class的除外
+   - 了解如何修改 active class
+   - 说明 `NavLinkMatch`
+   - 解释为什么网址不带前缀  `/`  因为 `<base href>`
+ - 修改 `Counter.razor` 以获取初始  `startCount` 参数
+   - 尝试使用非int参数值访问它. 添加 `:int` 路由约束.
+   - 自定义 "not found"  消息
+ - 演示程序化导航: 在 `Counter`, 如果计数超过 5, 自动导航到 `Index`
+ - 回顾所有生命周期方法，注意其中有一个隐藏的方法  ("dispose")
+ - 在 `Counter.razor`,   `OnInitialized` 启动一个计时器，该计时器增加计数并记录到控制台  
+   - 看到如果您反复导航，则有多个计时器
+   - 通过实施`IDisposable` 进行修复  
 
-## 04 Refactor state management
+## 04 重构状态管理
 
-- Talk about when components are created and disposed - this is the source of the bug in this section
-- Introduce DI scopes, why you use the scoped lifetime for per-user data and how it works
-- What happens when you move event handlers to a non-component class?
-- Show the generated code for an event handler, how does the runtime know where to dispatch the event? (`EventCallback`)
+- 讨论何时创建和处置组件-这是本节中的错误的来源
+- 介绍DI作用域，为什么要对每个用户数据使用作用域生存期以及其工作方式
+- 将事件处理程序移至非组件类时会发生什么？
+- 显示为事件处理程序生成的代码，运行时如何知道在何处调度事件？ (`EventCallback`)
 
 *demos before*
- - Create a Blazor Server app
- - See that the "counter" state is lost when you navigate away and back. How could we fix this?
-   - We could make the state static (see that work).
-     - This is a very limiting solution because there's no control over granularity, and it's completely
-       disasterous in Blazor Server.
-   - Factor out the state into a `CounterState` class and make it into a singleton DI service
-     - For Blazor Server, you still have the same problem as with static
-     - Now make it scoped, and see that fixes it
+ - 创建Blazor服务器应用程序
+ - 请注意，当您前后导航时，“计数器”状态会丢失。我们该如何解决?
+   - 我们可以使状态为静态 (看到他能工作).
+     - 这是一个非常有限的解决方案，因为无法控制粒度，并且在Blazor Server中完全是灾难性的.
+   - 将状态分解成一个 `CounterState` 类，并使其成为单例DI服务 
+     - 对于Blazor Server，您仍然遇到与静态相同的问题
+     - 现在使它成为Score ，并看到可以解决的问题 
 
 *demos after*
- - As an alternative to using DI, you could pass the state as a CascadingValue
- - To understand one of the limitations of DI as it is, also `@inject CounterState` into `MainLayout.razor`
-   and add `<button @onclick="() => { counterState.Count++; }">Increment</button>`
-   - Notice how updates do *not* flow automatically into `Counter.razor`, because nothing tells the framework that
-     your actions against a DI service in one component may affect another component
- - Remove the DI service for CounterState and see it now fails at runtime
- - In `MainLayout.razor`, add a `@code` block declaring a field with value `new CounterState()`
-   - Also surround `@Body` with `<CascadingValue Value=@counterState>` - see it work
- - As well as providing a subtree-scoped value, CascadingValue takes care of triggering a re-render of any
-   subscriber when the supplied value may have changed.
-   - See how the "increment" button in `MainLayout` causes an update to `Counter` now
- - Pros of using CascadingValue for shared state:
-   - It's subtree-scoped, not one-per-type-per-user.
-   - You control the instantiation, not the DI system
-   - Value changes trigger re-rendering automatically in subscribers
- - Cons:
-   - Doesn't do constructor injection automatically like DI system does
-   - No single central point for configuration
+ - 作为使用DI的替代方法，您可以将状态作为CascadingValue传递
+ - 要了解DI的限制之一，因为它是， 注入`@inject CounterState` 到 `MainLayout.razor`
+   并添加 `<button @onclick="() => { counterState.Count++; }">Increment</button>`
+   - 请注意，更新是如何不会自动流入的 `Counter.razor`, 因为没有任何内容告诉框架您对一个组件中的DI服务执行的操作可能会影响另一个组件
+ - 删除CounterState的DI服务，然后看到它现在在运行时失败
+ - 在 `MainLayout.razor` 里, 添加一个 `@code` 块，声明一个具有值的字段 `new CounterState()`
+   - 还环绕 `@Body` 有 `<CascadingValue Value=@counterState>` - 看他能正常工作
+ - 除了提供subtree-scoped 的值之外，CascadingValue还负责在提供的值可能已更改时触发任何订户的重新呈现。  
+   - 参见 在`MainLayout` 里的  "increment" 按钮 ，现在能够更新 `Counter` 
+ - 使用CascadingValue获取共享状态的优点:
+   - 他是 subtree-scoped, 而不是 one-per-type-per-user.
+   - 您控制实例化，而不是DI系统
+   - 值更改触发订阅者的自动重新呈现
+ - 缺点:
+   - 不像DI系统那样自动进行构造函数注入
+   - 没有单一的配置中心
 
-## 05 Checkout with Validation
+## 05 结算验证
 
-- Introduce `EditForm` and input components
+- 介绍 `EditForm` 和  input 组件
 
-*demos-before: todolist with validation*
+*demos-before: 带有验证的待办事项列表 *
 
- - Have a TodoList page, but for each item also track an "importance"
-   number and have the list auto-sort by importance
-   - Have DataAnnotations attributes on the `TodoItem` class
-   - Show you can add empty-string items
-   - Show the <input type=number> doesn't stop submission if you type in
-     bizarre input like `-------` or `15+3`, but when adding the item it
-     got reset to 0, which doesn't make sense as UX
- - Explain: Blazor has a general built-in validation system that's designed
-   for extensibility and even to allow you to replace it completely
- - Change `<form>` to `<EditForm>` and explain its responsibilities
-   - Set `Model="newItem"` where `newItem` is the a `TodoItem` field
-   - See it offers `OnSubmit`, `OnValidSubmit`, `OnInvalidSubmit`
-   - Wire up `OnValidSubmit` to your submission method
- - See that, at first, it still allows submission of arbitrary junk
- - Need to add `<DataAnnotationsValidator />` to the form
-   - Now see you can't submit junk, but still doesn't display reasons
- - Add `<ValidationSummary />` and see it displays reasons
- - Replace form fields with Blazor ones `<input>` => `<InputText>` etc
-   - See it now updates validation state on each change
- - Replace `<ValidationSummary>` with `<ValidationMessage>` for each field
- - If you want, customise a validation message
+ - 有一个TodoList页面，但是对于每个项目，还跟踪一个“重要性”数字，并按重要性对列表进行自动排序
+   - 类上具有DataAnnotations属性 `TodoItem`  
+   - 显示您可以添加空字符串项目
+   - 如果 <input type=number> 像`-------` 或者 `15+3`，则显示不停止提交，但是在添加项目时将其重置为0，这对于UX没有意义   
+ - 说明：Blazor具有通用的内置验证系统，该系统旨在实现可扩展性，甚至允许您完全替换它
+ - 更改 `<form>` 到 `<EditForm>` 并解释其职责
+   - 设置 `Model="newItem"` ，这里 `newItem` 是一个 `TodoItem` 字段
+   - 看到它提供 `OnSubmit`, `OnValidSubmit`, `OnInvalidSubmit`
+   -   `OnValidSubmit` 连接到了你的提交方法
+ - 看到，起初，它仍然允许提交任意垃圾
+ - 需要在表单上添加 `<DataAnnotationsValidator />` 
+   - 现在看到您无法提交垃圾数据，但仍然没有显示原因
+ - 添加 `<ValidationSummary />` 并可以看到显示原因
+ - 用Blazor替换表单字段 `<input>` => `<InputText>` 等等
+   - 看到它现在更新每次更改的验证状态
+ - 为每个字段使用  `<ValidationMessage>`   替换 `<ValidationSummary>`
+ - 如果需要，自定义验证消息
 
-*demos-after: tri-state checkbox OR slider component*
+*demos-after: 三态复选框或滑块组件 *
 
- - How would you create a brand-new input component that integrates with validation?
-   - Look at InputBase.cs in project repo
-   - Explain you can inherit from this. Your responsiblity is to provide the
-     rendered markup, and how to format/parse the value you've been given as a string.
-     For example, for some underlying HTML5 inputs, the browser deals with culture
-     variant values, and for others culture invariant ones, so you have to control
-     this exchange of data with the browser
- - Example: InputSlider
-   - CurrentValueAsString represents the value being given to the browser or being
-     received from it. This is usually what you use with `@bind` with the HTML.
-   - CssClass is computed by the framework and combines the user's supplied class
-     along with standard validation status classes
-   - AdditionalAttributes should be used with `@attributes` on the output if it makes
-     sense to add aribtrary user-supplied attributes to a particular element.
-     Explain "last wins" rule.
+ - 您将如何创建与验证集成的全新输入组件?
+   - 在项目仓库中查看 InputBase.cs  
+   - 说明您可以从中继承。您的责任是提供渲染的标记，以及如何格式化/解析以字符串形式给出的值。例如，对于某些基础HTML5输入，浏览器处理区域性变量值，而对于其他区域性不变值，因此您必须使用浏览器控制此数据交换
+ - 示例: InputSlider
+   - CurrentValueAsString 表示提供给浏览器或从浏览器接收的值. 这通常是 `@bind` 和 HTML一起使用的内容
+   - CssClass 由框架计算，并结合了用户提供的类和标准验证状态类 
+   - `@attributes` 如果在特定元素上添加用户提供的 aribribry属性，则应该在输出上使用AdditionalAttributes 。解释“最后获胜”的规则。
 
-## 06 Add Authentication
+## 06 添加验证
 
-- All security enforcement is on server. So what's the point of doing anything with auth in the client?
-  - It's to provide a nice UX. Tell the user if they are logged in, and if so as who, and what features they may access.
-  - Blazor has a set of APIs for talking about who a user is and affecting rendered UI based on that
-- The workshop code will use a cookie-based auth system whereby the login state is tracked by the server using a cookie.
-  However there are other ways it can be done too:
-  - Have the server issue a JWT on login to the client. Client stores it in localstorage and passes back to server
-    as HTTP header on API calls. This is somewhat like OAuth with password flow, but has caveats.
-  - Use OpenID Connect (OIDC) which is a protocol for logging in with an external identity provider and getting back
-    an auth token that identifies you to other services. This is very flexible and pretty much industry standard for SPAs,
-    and fixes the complicated problems inherent to cookie-based auth.
+- 所有安全实施措施都在服务器上。那么在客户端使用auth做任何事情有什么意义呢？
+  - 它提供了一个不错的用户体验。告诉用户是否已登录，以及是否登录，以及他们可以访问哪些功能。
+  - Blazor具有一组API，用于讨论用户身份并基于该API影响呈现的UI
+- 研讨会代码将使用基于cookie的身份验证系统，由此服务器使用cookie跟踪登录状态。但是，还有其他方法可以完成:
+  - 让服务器在登录客户端时发出JWT。客户端将其存储在本地存储中，并作为API调用上的HTTP标头传递回服务器。这有点像带有密码流的OAuth，但有一些警告.
+  - 使用OpenID Connect（OIDC），该协议用于通过外部身份提供商登录并获取将您标识为其他服务的auth令牌的协议。这是非常灵活的，几乎是SPA的行业标准，并且解决了基于cookie的身份验证固有的复杂问题.
 
-*demos*
- - Start with `BlazorWasmOidc` app but with `<LoginDisplay>` removed and `OidcClientAuthenticationStateProvider` DI service removed. Instead, have a `MyFakeAuthenticationStateProvider` hard-coded to return a logged-out state
- - See `MyFakeAuthenticationStateProvider` and explain it. Also, will replace with a better one shortly.
- - Imagine the server is going to reject weather forecast requests if you're logged out. Want to reflect that in the UI.
-   - Add `[Authorize]` there and see it work
-   - Might as well remove the menu entry if you're logged out - use <AuthorizeView> in `NavMenu.razor` to do that.
- - Now let's display the login state in the page header. Use `<AuthorizeView>` in `MainLayout.razor` to put that
-   into the `top-row` element.
- - So that's how it behaves when logged out. Let's now simulate being logged in.
-   - Modify MyFakeAuthenticationStateProvider to hard-code a particular username and a role.
-     `new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "SomeUser"), new Claim(ClaimTypes.Role, "Admin"), }, "myfakeauth"));`
-   - See it now reflected in UI
- - Lock things down to Admin role - see you can still access it
- - Remove user's Admin role - see you can no longer access it
- - Now let's integrate with an external OIDC auth flow
-   - Replace DI service for `AuthenticationStateProvider` to use `OidcClientAuthenticationStateProvider`
-   - In `MainLayout`, replace your auth display stuff with `<LoginDisplay>` component
-   - Now log in via OIDC
- - Explain: this is just a quick and very simplistic integration with an OIDC flow. We're working on a production-grade
-   one to ship in the box for the May release.
- - But is this really secure? What if the server tells the client that it's logged in as a specific user with certain claims,
-   but the client misbehaves or is bypassed by the user, and made to act as if it's logged in as a different user or has
-   different claims?
-   - Not a problem. The malicious user may be able to trick their UI to display menu options they shouldn't have access
-     to, but ultimately when they try to take an action against an external service, their auth token or cookie will be
-     checked by that service, so they can't act as someone they aren't.
+* 演示 *
+ - 从 `BlazorWasmOidc` 应用程序开始 ，但 `<LoginDisplay>` 已删除，并且删除了 `OidcClientAuthenticationStateProvider` DI service ，而是使用`MyFakeAuthenticationStateProvider` 硬编码返回登出状态
+ - 看看 `MyFakeAuthenticationStateProvider` 并解释它。此外，不久将替换为更好的版本.
+ - 想象一下，如果您注销了，服务器将拒绝 获取天气预报请求。想要在用户界面中反映出来。 
+   - 添加 `[Authorize]` 并看到它的工作
+   - 如果您已注销，也可以删除菜单项 - 在 `NavMenu.razor` 里使用 <AuthorizeView> 
+ - 现在，让我们在页面上中显示登录状态。在 `MainLayout.razor` 里 `<AuthorizeView>`，以将其写入`top-row` 元素
+ - 因此，这就是注销时的行为。现在让我们模拟一下登录。
+   - 修改 MyFakeAuthenticationStateProvider 以硬编码特定的用户名和角色。`new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "SomeUser"), new Claim(ClaimTypes.Role, "Admin"), }, "myfakeauth"));`
+   - 现在看到它反映在UI中
+ - 将内容锁定为管理员角色-看到您仍然可以访问它
+ - 删除用户的管理员角色-看到您无法再访问它
+ - 现在，让我们与外部OIDC身份验证流程集成
+   - 替换DI服务以 `AuthenticationStateProvider`  使用 `OidcClientAuthenticationStateProvider`
+   - 在 `MainLayout` 里, 将auth显示内容替换为 `<LoginDisplay>` component
+   - 现在通过OIDC登录
+ - 说明：这只是与OIDC流程的快速且非常简单的集成。
+ - 但这真的安全吗？如果服务器告诉客户端它以具有特定声明的特定用户身份登录，但是客户端行为不当或被用户绕过，并使其表现为好像以其他用户身份登录或具有不同声明，该怎么办？
+   - 没问题 恶意用户可能会欺骗其UI来显示其不应访问的菜单选项，但是最终，当他们尝试对外部服务执行操作时，该服务会检查其身份验证令牌或cookie，因此，不能扮演不是他们的人。
 
-*demos-after: different kind of auth demo*
- - Show how you could do JWT-based auth with password flow (have UI in your app that asks for username/password,
-   calls server which returns token, store it in localStorage, etc.)
-   - Get MissionControl demo without `[Authorize]` on either client or server
-     - See we can fetch the data without being logged in
-   - Add `[Authorize]` on server and see it now fail
-   - Add `[Authorize]` on client and see message saying to log in
-   - See how `LoginDisplay` uses `<AuthorizeView>`
-   - See how `LoginDialog` posts credentials to the server which returns a JWT token
-   - See how `TokenAuthenticationStateProvider` parses the JWT and stores it in localStorage
-   - See how logging out updates the UI immediately
- - Show OIDC flow
+*demos-after: 不同类型的身份验证演示 *
+ - 展示如何使用密码流进行基于JWT的身份验证（在您的应用程序中具有用于要求用户名/密码，调用返回令牌的服务器，将其存储在localStorage中的UI等等）
+   - 无需`[Authorize]` 客户端或服务器 即可获取MissionControl演示  
+     - 看到我们无需登录即可获取数据
+   - 在服务器上添加`[Authorize]` 并看到它现在失败
+   - 在客户端上添加`[Authorize]`并查看提示登录的消息
+   - 看看如何 `LoginDisplay` 使用 `<AuthorizeView>`
+   - 了解如何将 `LoginDialog` 凭证发布到返回JWT令牌的服务器
+   - 了解如何 `TokenAuthenticationStateProvider` 解析JWT并将其存储在localStorage中
+   - 查看注销如何立即更新UI
+ -展示OIDC流程
 
-## 07 JavaScript Interop
+## 07 JavaScript 互操作
 
-- Introduce JS Interop and `IJSRuntime` with a simple example (like showing a JavaScript `alert`)
-- When to do JS Interop (relative to component lifecycle), `OnAfterRender` and in response to events
-- Talk about how `IJSRuntime` is async for everything, why that's important, what to do if you need low-level synchronous interop
-- Introduce component libraries and project-bundled static content
-- Show how component library content files are editable while running
-- Reminder about component namespaces
-- note: This section can include some demos and examples of more advanced JS interop cases like calling .NET from JS or using `DotNetObjectRef<>`, the actual usage of JS interop in the workshop is pretty simple
+- 介绍JS Interop并演示一个示例 `IJSRuntime`   (例如显示 `alert`)
+- 何时进行 JS Interop (相对于组件生命周期), `OnAfterRender` 以及响应事件
+- 讨论 `IJSRuntime`  如何异步，为什么如此重要，如果需要低级同步互操作该怎么办
+- 介绍组件库和项目捆绑的静态内容
+- 展示组件库内容文件在运行时如何可编辑  
+- 提醒有关组件名称空间
+- 注意：本节可以包含一些更高级的JS互操作案例的示例和示例，例如从JS调用.NET或using DotNetObjectRef<>，在研讨会中JS互操作的实际用法非常简单
 
 *demos-before: alert()*
 *demos-after: DotNetObjectRef*
 
-## 08 Templated Components
+## 08 模板化组件
 
-- Bring up component libraries and review the project content, last section used and existing library, this section creates a new one.
-- Introduce `RenderFragment`, talk about how its used to pass markup and rendering logic to other components, recall examples like `AuthorizeView` and the `MainLayout`
-- Show a simple example that renders a `ChildContent` property
-- Talk about what happens when you have multiple `RenderFragment` parameters
-- Show example of a `RenderFragment<>` that requires an argument 
-- Introduce generics with `@typeparam` and compare to a generic class written in C#
-- Introduce type inference and show examples of using inference vs specifying the type
+- 调出组件库并查看项目内容，最后使用的部分和现有的库，此部分将创建一个新的库 
+- 介绍 `RenderFragment`, 谈谈如何其用于传递标记和呈现逻辑到其它部件,  典型例子就是 `AuthorizeView` 和 `MainLayout`
+- 展示一个呈现 `ChildContent` 属性的简单示例
+- 讨论有多个 `RenderFragment` 参数时会发生什么
+- 展示 `RenderFragment<>` 需要参数的的示例 
+- 向泛型引入`@typeparam` 并与用C＃编写的泛型类进行比较  
+- 介绍类型推断并显示使用推断与指定类型的示例  
 
-*demo: material design components*
+*demo: material design 组件 *
 
 ## 09 Progressive Web Apps
- - Demo all the ways of shipping an app (wasm, server, electron, pwa, webwindow)
-   and talk about pros/cons and capabilities of each
- - Possible also demo deploying to Azure
+ - 演示发布应用程序的所有方式  (wasm, server, electron, pwa, webwindow) 并讨论每种方法的优缺点和功能
+ - 可能还会演示部署到Azure
   
-## Appendix A: EventCallback - supplement to part 04
+## 附录 A: EventCallback - 第 04 补充
 
-First, we need to review how event dispatching interacts with rendering. Components will automatically re-render (update the DOM) when their parameters have changed, or when they receive an event (like `@onclick`). This generally works for the most common cases. This also makes sense because it would be infeasible to rerender the entire UI each time an event happens - Blazor has to make a decision about what part of the UI should update.
+首先，我们需要回顾事件调度与渲染的交互方式。当组件的参数更改或收到事件（如 `@onclick`）时，组件将自动重新渲染（更新DOM ）。这通常适用于最常见的情况。这也是有道理的，因为每次事件发生时都无法重新渲染整个UI，Blazor必须决定应更新UI的哪一部分。
 
-An event handler is attached to a .NET `Delegate` and the component that receives the event notification is defined by [`Delegate.Target`](https://docs.microsoft.com/en-us/dotnet/api/system.delegate.target?view=netframework-4.8#System_Delegate_Target). Roughly-defined, if the delegate represents an instance method of some object, then the `Target` will be the object instance whose method is being invoked. 
-
-In the following example the event handler delegate is `TestComponent.Clicked` and the `Delegate.Target` is the instance of `TestComponent`.
+事件处理程序附加到.NET， `Delegate` 并且接收事件通知的组件由定义 [`Delegate.Target`](https://docs.microsoft.com/en-us/dotnet/api/system.delegate.target?view=netframework-4.8#System_Delegate_Target).。大致定义为，如果委托代表某个对象的实例方法，则 `Target` 将会是正在调用其方法的对象实例。
+ 
+在以下示例中，事件处理程序委托为 `TestComponent.Clicked` 则 `Delegate.Target` 为的实例 `TestComponent`.
 
 ```html
 @* TestComponent.razor *@
@@ -267,9 +239,10 @@ In the following example the event handler delegate is `TestComponent.Clicked` a
 }
 ```
 
-Since usually the purpose of an event handler is to call a method that updates the private state of a component, it makes sense that Blazor would want to rerender the component that defines the event handler. The previous example is the most simple use of an event handler, and it makes sense that we'd want to rerender `TestComponent` in this case.
-
-Now let's consider what happens when we want an event to rerender an *ancestor* component. This is similar to what happens with `Index` and `ConfigurePizzaDialog` - and it *just works* for the typical case where the event handler is a parameter. This example will use `Action` instead of `EventCallback` since we're building up to an explanation of why `EventCallback` is needed.
+因为通常事件处理程序的目的是调用一种更新组件私有状态的方法，所以Blazor希望重新渲染定义事件处理程序的组件是有意义的。前面的示例是事件处理程序的最简单用法，`TestComponent` 在这种情况下，我们想要重新渲染是有意义的。
+ 
+ 现在让我们考虑当我们想要一个事件重新呈现祖先组件时会发生什么。这类似于`Index` 和`ConfigurePizzaDialog` 发生的情况，它仅适用于事件处理程序为参数的典型情况。本示例将`Action` 代替使用，`EventCallback`因为我们正在逐步解释为什么`EventCallback`需要这样做。
+ 
 
 ```html
 @* CoolButton.razor *@
@@ -289,10 +262,10 @@ Now let's consider what happens when we want an event to rerender an *ancestor* 
     }
 }
 ```
+在此示例中，事件处理程序委托为 `TestComponent2.Clicked` 和`Delegate.Target` 是实例TestComponent-尽管`CoolButton` 实际上是事件的定义。这意味着 `TestComponent2` 将在单击按钮时重新呈现。这是有道理的，因为如果 `TestComponent2` 不重新渲染，就无法更新计数。
 
-In the this example the event handler delegate is `TestComponent2.Clicked` and the `Delegate.Target` is the instance of `TestComponent` - even though it's `CoolButton` that actually defines the event. This means that `TestComponent2` will be rerendered when the button is clicked. This makes sense because if `TestComponent2` didn't get rerendered, you couldn't update the count.
-
-Let's see a third example to show how this falls apart. There are cases where `Delegate.Target` isn't a component at all, and so nothing will rerender. Let's see that example again, but with an *AppState* object:
+让我们看第三个示例，以说明如何分崩离析。在某些情况下`Delegate.Target` 根本没有组件，因此什么都不会重新呈现。让我们再来看一个示例，但是带有一个AppState对象：
+ 
 
 ```C#
 public class TestState
@@ -318,14 +291,14 @@ public class TestState
 <CoolButton Clicked="@State.Clicked" />
 <p>Clicked @State.Count times!</p>
 ```
+在该第三示例中，事件处理程序委托是 `TestState.Clicked` 和这样`Delegate.Target` 是`TestState`  - 不是组件。单击该按钮时，没有组件会收到事件通知，因此不会重新呈现任何内容。
 
-In this third example the event handler delegate is `TestState.Clicked` and the so `Delegate.Target` is `TestState` - **not a component**. When the button is clicked, no component gets the event notification, and so nothing will rerender.
-
-This is the problem that `EventCallback` was created to solve. By changing the parameter on `CoolButton` from `Action` to `EventCallback` you fix the event dispatching behavior. This works because `EventCallback` is known to the compiler, when you create an `EventCallback` from a delegate that doesn't have its `Target` set to a component, then the compiler will pass the current component to receive the event.
+这是`EventCallback` 要解决的问题。通过将参数`CoolButton` 从`Action` 更改为`EventCallback`您可以修复事件分发行为。之所以 `EventCallback`，是因为编译器知道它，当您`EventCallback`从未将其`Target` 设置为组件的委托创建一个时，编译器将传递当前组件以接收事件。
 
 ----
 
-Let's jump back to our application. If you like you can reproduce the problem that's been described here by changing the parameters of `ConfigurePizzaDialog` from `EventCallback` to `Action`. If you try this you can see that cancelling or confirming the dialog does nothing. This is because our use case is exactly like the third example above:
+让我们回到我们的应用程序。如果你喜欢，你可以复制一个已经改变的参数，这里所描述的问题`ConfigurePizzaDialog`，从`EventCallback`到`Action` 。如果尝试这样做，您会看到取消或确认对话框没有任何作用。这是因为我们的用例与上面的第三个示例完全一样：
+ 
 
 ```html
 @* from Index.razor *@
@@ -338,4 +311,4 @@ Let's jump back to our application. If you like you can reproduce the problem th
 }
 ```
 
-For the `OnConfirm` and `OnCancel` parameters, the `Delegate.Target` will be `OrderState` since we're passing reference to methods defined by `OrderState`. If you're using `EventCallback` then the special logic of the compiler kicks in and it will specify additional information to dispatch the event to `Index`.
+对于`OnConfirm` 和`OnCancel` 参数，由于`Delegate.Target`将`OrderState` 传递对定义的方法的引用，因此将是`OrderState` e。如果您使用`EventCallback` 的是编译器的特殊逻辑，则它将指定其他信息以将事件调度到`Index` 。
