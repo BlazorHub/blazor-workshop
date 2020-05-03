@@ -13,7 +13,7 @@ Blazor是一个单页应用程序框架，用于使用.NET和WebAssembly构建�
 
 ## Sessions
 
-| Session | 主题 |
+| 课程 | 主题 |
 | ----- | ---- |
 | [Session #0](/docs/00-get-started.md) | 安装并构建第一个Blazor 应用 |
 | [Session #1](/docs/01-components-and-layout.md) | 开始使用组件，创建应用布局 |

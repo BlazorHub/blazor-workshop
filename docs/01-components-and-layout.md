@@ -1,10 +1,10 @@
-# Components and layout
+# 组件和布局
 
-In this session, you'll get started building a pizza store app using Blazor. The app will enable users to order pizzas, customize them, and then track the order deliveries.
+在本课程中，将开始使用blazor 构建披萨店应用程序。该应用程序将使用户能够订购披萨，对其进行自定义，然后跟踪订单的交付情况。
 
-## Pizza store starting point
+## 披萨店的起点
 
-We've set up the initial solution for you for the pizza store app in this repo. Go ahead and clone this repo to your machine. You'll find the [starting point](https://github.com/dotnet-presentations/blazor-workshop/tree/master/save-points/00-get-started) in the *save-points* folder along with the end state for each session.
+我们已经在仓库中为披萨店应用程序设置了初始解决方案，你将在 *save-points* 文件夹中找到[starting point](../save-points/00-get-started) ，以及这些课程的最终状态.
 
 > Note: If you copy the code from this workshop to a different location on your machine, be sure to also copy the *Directory.Build.props* file at the root of this repo in order to restore the appropriate package versions.
 
