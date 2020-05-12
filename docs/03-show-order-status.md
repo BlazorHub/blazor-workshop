@@ -1,10 +1,10 @@
-# Show order status
+# 显示订单状态
 
-Your customers can order pizzas, but so far they have no way to see the status of their orders. In this session you'll implement a "My orders" page that lists multiple orders, plus an "Order details" view showing the contents and status of an individual order.
+您的客户可以订购比萨饼，但到目前为止，他们没有办法看到他们的订单状态。在这节课中，您将实现一个"我的订单"页面，该页面列出了多个订单，以及显示单个订单内容和状态的"订单详细信息"视图。 
 
-## Adding a navigation link
+## 添加导航链接
 
-Open `Shared/MainLayout.razor`. As an experiment, let's try adding a new link element *without* using a `NavLink` component. Add a plain HTML `<a>` tag pointing to `myorders`:
+打开 `Shared/MainLayout.razor`. 作为实验，让我们尝试添加新的链接元素，而无需使用组件`NavLink`  ，添加一个普通的Html `<a>` 到 `myorders`:
 
 ```html
 <div class="top-bar">
@@ -17,30 +17,30 @@ Open `Shared/MainLayout.razor`. As an experiment, let's try adding a new link el
 </div>
 ```
 
-> Notice how the URL we're linking to does *not* start with a `/`. If you linked to `/myorders`, it would appear to work the same, but if you ever wanted to deploy the app to a non-root URL the link would break. The `<base href="/">` tag in `index.html` specifies the prefix for all non-slash-prefixed URLs in the app, regardless of which component renders them.
+> 请注意，我们<base href="/">index.html 链接到的 URL 以`/` 开头。如果链接到 `/myorders` ，它看起来工作相同，但如果您曾经希望将应用部署到非根 URL，则链接将中断。`index.html` 中的标记`<base href="/">`指定应用中所有非斜杠预固定 URL 的前缀，而不管哪个组件呈现它们。
 
-If you run the app now, you'll see the link, styled as expected:
+如果现在运行该应用程序，您将看到该链接，该链接的样式如下：
 
 ![My orders link](https://user-images.githubusercontent.com/1874516/77241321-a03ba880-6bad-11ea-9a46-c73be397cb5e.png)
 
 
-This shows it's not strictly necessary to use `<NavLink>`. We'll see the reason to use it momentarily.
+这表明`<NavLink>`它不是必须使用的。我们将在后面看到使用它的原因。 
 
-## Adding a "My Orders" page
+## 添加"我的订单"页面
 
-If you click "My Orders", you'll end up on a page that says "Sorry, there's nothing at this address.". Obviously this is because you haven't yet added anything that matches the URL `myorders`. But if you're watching really carefully, you might notice that on this occasion it's not just doing client-side (SPA-style) navigation, but instead is doing a full-page reload.
+如果您单击"My Orders"，您将最终出现在一个页面，该页面上显示"对不起，此地址没有任何内容"。显然，这是因为您尚未添加任何与 URL `myorders`匹配的页面。但是，如果你非常仔细地观察，你可能会注意到，在这个时候，它不只是做客户端（SPA样式）导航，而是在做全页重新加载。
 
-What's really happening is this:
+这背后真正发生的事情是：
 
-1. You click on the link to `myorders`
-2. Blazor, running on the client, tries to match this to a client-side component based on `@page` directive attributes.
-3. However, since no match is found, Blazor falls back on full-page load navigation in case the URL is meant to be handled by server-side code.
-4. However, the server doesn't have anything that matches this either, so it falls back on rendering the client-side Blazor application.
-5. This time, Blazor sees that nothing matches on either client *or* server, so it falls back on rendering the `NotFound` block from your `App.razor` component.
+1. 单击指向 `myorders`
+2. 在客户端上运行的 Blazor 尝试将此与基于指令属性`@page` 的客户端组件匹配 
+3. 但是，由于找不到匹配项，Blazor 会返回全页加载导航，以防 URL 由服务器端代码处理。  
+4. 但是，服务器也没有任何匹配，因此它落在呈现客户端 Blazor 应用程序上来兜底。 
+5. 这一次，Blazor 发现客户端或服务器上没有任何匹配，因此它落在从`App.razor` 组件`NotFound` 呈现块上。 
 
-If you want to, try changing the content in the `NotFound` block in your `App.razor` component to see how you can customize this message.
+你可以尝试修改`App.razor`组件块`NotFound`中的内容，以查看如何自定义此消息。 
 
-As you can guess, we will make the link actually work by adding a component to match this route. Create a file in the `Pages` folder called `MyOrders.razor`, with the following content:
+正如您可以猜到的，我们将通过添加一个组件来匹配此路由来使链接真正发挥作用。在名为 `Pages`  的文件夹中创建一个文件`MyOrders.razor`，包含以下内容： 
 
 ```html
 @page "/myorders"
@@ -50,17 +50,17 @@ As you can guess, we will make the link actually work by adding a component to m
 </div>
 ```
 
-Now when you run the app, you'll be able to visit this page:
+现在，当您运行该应用程序时，您将能够访问此页面：
 
 ![My orders blank page](https://user-images.githubusercontent.com/1874516/77241343-fc9ec800-6bad-11ea-8176-febf614ed4ad.png)
 
-Also notice that this time, no full-page load occurs when you navigate, because the URL is matched entirely within the client-side SPA. As such, navigation is instantaneous.
+另请注意，这一次，在导航时不会发生全页加载，因为 URL 完全在客户端 SPA 中匹配。因此，导航是瞬时完成的。  
 
-## Highlighting navigation position
+## 突出显示导航位置
 
-Look closely at the top bar. Notice that when you're on "My orders", the link *isn't* highlighted in yellow. How can we highlight links when the user is on them? By using a `NavLink` component instead of a plain `<a>` tag. The only special thing a `NavLink` component does is toggle its own `active` CSS class depending on whether its `href` matches the current navigation state.
+仔细观察顶部栏。请注意，当您在"我的订单"上时，链接不会以黄色突出显示。当用户位于链接上时，我们如何突出显示链接？通过使用组件`NavLink`而不是普通标记 `<a>`。`NavLink`组件唯一的特殊做法是切换自己的 CSS 类`active`，具体取决于`href`其是否与当前导航状态匹配。 
 
-Replace the `<a>` tag you just added in `MainLayout` with the following (which is identical apart from the tag name):
+将 `MainLayout` 里刚刚添加的标记`<a>` 替换为以下内容（与标记名称相同） :
 
 ```html
 <NavLink href="myorders" class="nav-tab">
@@ -69,19 +69,19 @@ Replace the `<a>` tag you just added in `MainLayout` with the following (which i
 </NavLink>
 ```
 
-Now you'll see the links are correctly highlighted according to the navigation state:
+现在您将看到链接根据导航状态正确突出显示：
 
 ![My orders nav link](https://user-images.githubusercontent.com/1874516/77241358-412a6380-6bae-11ea-88da-424434d34393.png)
 
-## Displaying the list of orders
+## 显示订单列表
 
-Switch back to the `MyOrders` component code. Once again we're going to inject an `HttpClient` so that we can query the backend for data. Add the following under the `@page` directive line:
+切换回组件`MyOrders`代码。我们再次将注入`HttpClient`，以便我们可以查询后端的数据。在`@page`指令行下添加以下内容： 
 
 ```html
 @inject HttpClient HttpClient
 ```
 
-Then add a `@code` block that makes an asynchronous request for the data we need:
+然后添加一个块 `@code` ，用于对我们需要的数据发出异步请求：
 
 ```csharp
 @code {
@@ -94,13 +94,13 @@ Then add a `@code` block that makes an asynchronous request for the data we need
 }
 ```
 
-Let's make the UI display different output in three different cases:
+让我们在三种不同情况下使 UI 显示不同的输出:
 
- 1. While we're waiting for the data to load
- 2. If the user has never placed any orders
- 3. If the user has placed one or more orders
+ 1. 在等待加载数据时
+ 2. 如果用户从未下过任何订单
+ 3. 如果用户下了一个或多个订单
 
-It's simple to express this using `@if/else` blocks in Razor code. Update the markup inside your component as follows:
+使用 Razor 代码中的块`@if/else`来表达这一点非常简单。更新组件内的标记，如下所示： 
 
 ```html
 <div class="main">
@@ -120,37 +120,37 @@ It's simple to express this using `@if/else` blocks in Razor code. Update the ma
 </div>
 ```
 
-Perhaps some parts of this code aren't obvious, so let's point out a few things.
+也许这个代码的某些部分并不明显，所以让我们指出一些。
 
-### 1. What's a `<text>` element?
+### 1.   `<text>` 元素是什么?
 
-`<text>` is *not* an HTML element at all. Nor is it a component. Once the `MyOrders` component is compiled, the `<text>` tag won't exist in the result at all.
+`<text>` 根本不是 HTML 元素。它也不是组件。编译组件`MyOrders`后，结果中根本不存在标记。 
 
-`<text>` is a special signal to the Razor compiler that you want to treat its contents as a markup string and *not* as C# source code. It's only used on rare occasions where the syntax would otherwise be ambiguous.
+`<text>` 是向 Razor 编译器发出的一个特殊信号，您希望将其内容视为标记字符串，而不是C# 源代码。它仅在语法不明确的罕见情况下使用。
 
-### 2. What's with href=""?
+### 2.   href="" 是怎么回事?
 
-If `<a href="">` (with an empty string for `href`) surprises you, remember that the browser will prefix the `<base href="/">` value to all non-slash-prefixed URLs. So, an empty string is the correct way to link to the client app's root URL.
+如果`<a href="">`  （带`href` ） 的空字符串意外，请记住，浏览器将该值 `<base href="/">`前缀到所有非斜线预固定 URL。因此，空字符串是链接到客户端应用的根 URL 的正确方法。  
 
-### 3. How does this render?
+### 3. 如何呈现？
 
-The asynchronous flow we've implemented above means the component will render twice: once before the data has loaded (displaying "Loading.."), and then once afterwards (displaying one of the other two outputs).
+我们在上面实现的异步流意味着组件将呈现两次：一次在加载数据之前（显示"Loading.."），然后一次（显示其他两个输出之一）。
 
-### 4. Why are we using OnParametersSetAsync?
+### 4. 我们为什么要使用 OnParametersSetAsync?
 
-Asynchronous work when applying parameters and property values must occur during the OnParametersSetAsync lifecycle event. We will be adding a parameter in a later session.
+应用参数和属性值时，异步工作必须在 OnparametersSetAsync 生命周期事件期间发生。我们将在以后的课程中添加一个参数。
 
-### 5. How can I reset the database?
+### 5. 如何重置数据库?
 
-If you want to reset your database to see the "no orders" case, simply delete `pizza.db` from the Server project and reload the page in your browser.
+如果要重置数据库以查看"无订单"情况，只需从"服务器"项目中删除`pizza.db`并在浏览器中重新加载页面即可  
 
 ![My orders empty list](https://user-images.githubusercontent.com/1874516/77241390-a4b49100-6bae-11ea-8dd4-e59afdd8f710.png)
 
-## Rendering a grid of orders
+## 呈现订单Grid
 
-Now we have all the data we need, we can use Razor syntax to render an HTML grid.
+N现在，我们拥有了所需的所有数据，我们可以使用 Razor 语法来呈现 HTML Grid。  
 
-Replace the `<text>TODO: show orders</text>` code with the following:
+将代码`<text>TODO: show orders</text>` 替换为以下内容 :
 
 ```html
 <div class="list-group orders-list">
@@ -177,15 +177,15 @@ Replace the `<text>TODO: show orders</text>` code with the following:
 </div>
 ```
 
-It looks like a lot of code, but there's nothing special here. It simply uses a `@foreach` to iterate over the `ordersWithStatus` and outputs a `<div>` for each one. The net result is as follows:
+它看起来像很多代码，但这里没有什么特别之处。它只需使用 `@foreach`  迭代`ordersWithStatus` 和 输出`<div>`  。最终结果如下：
 
 ![My orders grid](https://user-images.githubusercontent.com/1874516/77241415-feb55680-6bae-11ea-89ba-f8367ef6a96c.png)
 
-## Adding an Order Details display
+## 添加订单详细信息显示
 
-If you click on the "Track" link buttons next to an order, the browser will attempt to navigate to `myorders/<id>` (e.g., `http://example.com/myorders/37`). Currently this will result in a "Sorry, there's nothing at this address." message because no component matches this route.
+如果您单击订单旁边的"Track"链接按钮，浏览器将尝试导航到 `myorders/<id>`（例如 `http://example.com/myorders/37` 。目前，这将导致"对不起，此地址没有任何内容"消息，因为没有组件匹配此路由。
 
-Once again we'll add a component to handle this. In the `Pages` directory, create a file called `OrderDetails.razor`, containing:
+我们再次添加一个组件来处理这一点。在目录中`Pages`，创建名为`OrderDetails.razor` 的文件，包含： 
 
 ```html
 @page "/myorders/{orderId:int}"
@@ -199,39 +199,39 @@ Once again we'll add a component to handle this. In the `Pages` directory, creat
 }
 ```
 
-This code illustrates how components can receive parameters from the router by declaring them as tokens in the `@page` directive. If you want to receive a `string`, the syntax is simply `{parameterName}`, which matches a `[Parameter]` name case-insensitively. If you want to receive a numeric value, the syntax is `{parameterName:int}`, as in the example above. The `:int` is an example of a *route constraint*. Other route constraints are supported too.
+此代码说明了组件如何通过在指令 `@page`中将其声明为令牌来从路由器接收参数。如果要接收`string` ， 语法只是 `{parameterName}` ， 与名称大小写不敏感匹配。如果要接收数值，则语法为`{parameterName:int}` ，如上例所示。`:int`是路由约束的示例。其他路由约束也受支持。 
 
 ![Order details empty](https://user-images.githubusercontent.com/1874516/77241434-391ef380-6baf-11ea-9803-9e7e65a4ea2b.png)
 
-If you're wondering how routing actually works, let's go through it step-by-step.
+如果您想知道路由的实际工作原理，让我们逐步完成它。
 
-1. When the app first starts up, code in `Program.cs` tells the framework to render `App` as the root component.
-2. The `App` component (in `App.razor`) contains a `<Router>`. `Router` is a built-in component that interacts with the browser's client-side navigation APIs. It registers a navigation event handler that gets notification whenever the user clicks on a link.
-3. Whenever the user clicks on a link, code in `Router` checks whether the destination URL is within the same SPA (i.e., whether it's under the `<base href>` value, and it matches some component's declared routes). If it's not, traditional full-page navigation occurs as usual. But if the URL is within the SPA, `Router` will handle it.
-4. `Router` handles it by looking for a component with a compatible `@page` URL pattern. Each `{parameter}` token needs to have a value, and the value has to be compatible with any constraints such as `:int`.
-   * If there is a matching component, that's what the `Router` will render. This is how all the pages in your application have been rendering all along.
-   * If there's no matching component, the router tries a full-page load in case it matches something on the server.
-   * If the server chooses to re-render the client-side Blazor app (which is also what happens if a visitor is initially arriving at this URL and the server thinks it may be a client-side route), then Blazor concludes that nothing matches on either server or client, so it displays whatever `NotFound` content is configured.
+1. 当应用首次启动时，`Program.cs`中的代码会告诉框架`App`作为根组件呈现。 
+2.  `App`组件 （在`App.razor` 中） 包含 `<Router>` 。 `Router` 是一个内置组件，与浏览器的客户端导航 API 进行交互。它注册一个导航事件处理程序，每当用户单击链接时都会收到通知。
+3. 每当用户单击链接时，`Router` 中的代码都会检查目标 URL 是否在同一 SPA 中（即它是否在`<base href>`值之下，并且它与某些组件声明的路由匹配）。如果不是，传统的全页导航照常进行。但是，如果 URL 在 SPA 中，`Router`将处理它。
+4. `Router`  通过查找具有兼容 `@page`URL 模式的组件来处理它。每个`{parameter}`令牌都需要有一个值，并且该值必须与任何约束（如  `:int`） 兼容。 
+   * 如果有匹配的组件，`Router`则呈现该组件。这是应用程序中的所有页面一直呈现的方式。
+   * 如果没有匹配组件，路由器将尝试全页加载，以防其与服务器上的内容匹配。 
+   * 如果服务器选择重新呈现客户端 Blazor 应用（如果访问者最初到达此 URL 并且服务器认为它可能是客户端路由，则也会发生这种情况），则 Blazor 得出结论，服务器或客户端上没有任何匹配，因此它显示 `NotFound`配置的任何内容。 
 
-## Polling for order details
+## 轮询订单详细信息
 
-The `OrderDetails` logic will be quite different from `MyOrders`. Instead of fetching the data just once when the component is instantiated, we'll poll the server every few seconds for updated data. This will make it possible to show the order status in (nearly) real-time, and later, to display the delivery driver's location on a moving map.
+`OrderDetails`逻辑将完全不同于`MyOrders` 。而是在实例化组件时只获取数据一次，我们将每隔几秒轮询服务器以获取更新的数据。这样，就可以在（几乎）实时以及以后实时显示订单状态，以便在移动地图上显示传递驱动程序的位置。 
 
-What's more, we'll also account for the possibility of `OrderId` being invalid. This might happen if:
+此外，我们还将考虑`OrderId`无效的可能性。如果出现这种情况： 
 
-* No such order exists
-* Or later, when we've implemented authentication, if the order is for a different user and you're not allowed to see it
+* 不存在此类订单
+* 或者后面当我们实现身份验证时，如果订单是针对其他用户的，并且不允许您看到它 
 
-Before we can implement the polling, we'll need to add the following directives at the top of `OrderDetails.razor`, typically directly under the `@page` directive:
+在实现轮询之前，我们需要在`OrderDetails.razor` 顶部添加以下指令，通常直接在`@page` 指令下： 
 
 ```html
 @using System.Threading
 @inject HttpClient HttpClient
 ```
 
-You've already seen `@inject` used with `HttpClient`, so you know what that is for. Plus, you'll recognize `@using` from the equivalent in regular `.cs` files, so this shouldn't be much of a mystery either. Unfortunately, Visual Studio does not yet add `@using` directives automatically in Razor files, so you do have to write them in yourself when needed.
+您已经看到 `HttpClient`使用`@inject` ，所以你知道这是注入HttpClient用的。此外，您将从常规文件`.cs` 中的等效文件中识别`@using` ，因此这也不应该是一个谜。遗憾的是，Visual Studio 尚未在 Razor 文件中自动添加指令，因此您必须在需要时自行编写指令。 
 
-Now you can implement the polling. Update your `@code` block as follows:
+现在，您可以实现轮询。更新`@code`块如下： 
 
 ```cs
 @code {
@@ -275,7 +275,7 @@ Now you can implement the polling. Update your `@code` block as follows:
 }
 ```
 
-The code is a bit intricate, so be sure to go through it carefully to understand each aspect of it before proceeding. Here are some notes:
+代码有点复杂，所以在继续之前，请务必仔细了解它的各个方面。以下是一些注意事项：
 
 * This uses `OnParametersSet` instead of `OnInitialized` or `OnInitializedAsync`. `OnParametersSet` is another component lifecycle method, and it fires when the component is first instantiated *and* any time its parameters change value. If the user clicks a link directly from `myorders/2` to `myorders/3`, the framework will retain the `OrderDetails` instance and simply update its `OrderId` parameter in place.
   * As it happens, we haven't provided any links from one "my orders" screen to another, so the scenario never occurs in this application, but it's still the right lifecycle method to use in case we change the navigation rules in the future.
