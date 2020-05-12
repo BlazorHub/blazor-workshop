@@ -49,16 +49,19 @@
 `@code` 块中的代码将添加到该组件的生成的类中。该`PizzaSpecial` 类型已在共享项目中为您定义 
 
 要获取可用的特价商品列表，我们需要在后端调用API。Blazor提供了HttpClient通过依赖项注入进行的预配置，该注入已使用正确的基地址进行设置。使用@inject指令将an HttpClient注入到Index组件中。
-To get the available list of specials we need to call an API on the backend. Blazor provides a preconfigured `HttpClient` through dependency injection that is already setup with the correct base address. Use the `@inject` directive to inject an `HttpClient` into the `Index` component.
+指令实质上定义组件上的新属性，其中第一个令牌指定属性类型，第二个令牌指定属性名称。使用依赖项注入为您填充该属性。 
+
+要获取可用的特价商品列表，我们需要在调用后端 API 获取数据 。Blazor 提供通过依赖项注入预配置  `HttpClient` t，该注入已使用正确的基本地址进行设置。使用 指令将 `@inject` 注入 `Index` 组件。 
+
 
 ```
 @page "/"
 @inject HttpClient HttpClient
 ```
 
-The `@inject` directive essentially defines a new property on the component where the first token specifies the property type and the second token specifies the property name. The property is populated for you using dependency injection.
-
-Override the `OnInitializedAsync` method in the `@code` block to retrieve the list of pizza specials. This method is part of the component lifecycle and is called when the component is initialized. Use the `GetFromJsonAsync<T>()` method to handle deserializing the response JSON:
+指令`@inject`  实质上定义组件上的新属性，其中第一个指定属性类型，第二个令牌指定属性名称。使用依赖项注入为您填充该属性。
+ 
+重写块中`@code` 的方法`OnInitializedAsync` 以检索特价披萨列表。此方法是组件生命周期的一部分，在初始化组件时调用此方法。使用 `GetFromJsonAsync<T>()` 方法处理响应 JSON 反序列化：
 
 ```csharp
 @code {
@@ -71,9 +74,9 @@ Override the `OnInitializedAsync` method in the `@code` block to retrieve the li
 }
 ```
 
-The `/specials` API is defined by the `SpecialsController` in the Server project.
+ `/specials` API 由 服务器项目中的  `SpecialsController` 定义。 
 
-Once the component is initialized it will render its markup. Replace the markup in the `Index` component with the following to list the pizza specials:
+ 一旦组件初始化，它将呈现其标记。将 `Index`  组件中的标记替换为以下内容，以列出特价披萨：
 
 ```html
 <div class="main">
@@ -95,16 +98,16 @@ Once the component is initialized it will render its markup. Replace the markup 
 </div>
 ```
 
-Run the app by hitting `Ctrl-F5`. Now you should see a list of the specials that are available.
+通过点击`Ctrl-F5` 运行应用程序。现在，您应该会看到可用的特价披萨列表。  
 
 ![image](https://user-images.githubusercontent.com/1874516/77239386-6c558880-6b97-11ea-9a14-83933146ba68.png)
 
 
-## Create the layout
+##  创建布局
 
-Next we'll set up the layout for the app. 
+接下来，我们将为应用设置布局。
 
-Layouts in Blazor are also components. They inherit from `LayoutComponentBase`, which defines a `Body` property that can be used to specify where the body of the layout should be rendered. The layout component for our pizza store app is defined in *Shared/MainLayout.razor*.
+Layouts 在 Blazor 中也是组件。 他们从 `LayoutComponentBase` 继承, 该属性定义可用于指定布局正文的呈现位置的属性 `Body` 。 我们的比萨饼商店应用程序的布局组件在 *Shared/MainLayout.razor* 中定义。  
 
 ```html
 @inherits LayoutComponentBase
@@ -114,11 +117,11 @@ Layouts in Blazor are also components. They inherit from `LayoutComponentBase`, 
 </div>
 ```
 
-To see how the layout is associated with your pages, look at the `<Router>` component in `App.razor`. Notice that the `DefaultLayout` parameter determines the layout used for any page that doesn't specify its own layout directly.
+要查看布局如何与页面关联，请查看 `App.razor` 中的组件`<Router>` 。请注意， `DefaultLayout` 该参数确定用于不直接指定其自身布局的任何页面的布局。  
 
-You can also override this `DefaultLayout` on a per-page basis. To do so, you can add a directive such as `@layout SomeOtherLayout` at the top of any `.razor` page component. However, you will not need to do so in this application.
+您还可以按页重写此项`DefaultLayout` 。为此，可以添加指令 `@layout SomeOtherLayout`，如在任何页面组件的顶部。但是，您不需要在这个应用程序中执行此项操作。
 
-Update the `MainLayout` component to define a top bar with a branding logo and a nav link for the home page:
+更新组件`MainLayout`以定义带有品牌徽标和主页导航链接的顶部栏：
 
 ```html
 @inherits LayoutComponentBase
@@ -137,13 +140,13 @@ Update the `MainLayout` component to define a top bar with a branding logo and a
 </div>
 ```
 
-The `NavLink` component is provided by Blazor. Components can be used from components by specifying an element with the component's type name along with attributes for any component parameters.
+组件`NavLink`由 Blazor 提供。 组件可以通过指定具有组件类型名称的元素以及任何组件参数的属性从组件中使用。 
 
-The `NavLink` component is the same as an anchor tag, except that it adds an `active` class if the current URL matches the link address. `NavLinkMatch.All` means that the link should be active only when it matches the entire current URL (not just a prefix). We'll examine the `NavLink` component in more detail in a later session.
+组件`NavLink`与锚点标记相同，只不过在当前 URL 与链接地址匹配时，该组件会添加 class `active`。 `NavLinkMatch.All` 意味着链接应仅在与整个当前 URL 匹配时才处于活动状态（而不仅仅是前缀）。我们将在后面的课程中中更详细地使用组件 `NavLink` 。 
 
-Run the app by hitting `Ctrl-F5`. With our new layout, our pizza store app now looks like this:
+通过点击 `Ctrl-F5` 运行应用程序。有了我们的新布局，我们的比萨饼店应用程序现在如下所示： 
 
 ![image](https://user-images.githubusercontent.com/1874516/77239419-aa52ac80-6b97-11ea-84ae-f880db776f5c.png)
 
 
-Next up - [Customize a pizza](02-customize-a-pizza.md)
+下一步 - [定制披萨饼](02-customize-a-pizza.md)

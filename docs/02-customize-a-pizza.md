@@ -1,12 +1,12 @@
-# Customize a pizza
+# 定制比萨饼
 
-In this session we'll update the pizza store app to enable users to customize their pizzas and add them to their order.
+在本节课中，我们将更新比萨饼商店应用程序，使用户能够自定义他们的比萨饼，并将其添加到他们的订单。
 
-## Event handling
+## 事件处理
 
-When the user clicks a pizza special, a pizza customization dialog should pop up to allow the user to customize their pizza and add it to their order. To handle DOM UI events in a Blazor app, you specify which event you want to handle using the corresponding HTML attribute and then specify the C# delegate you want called. The delegate may optionally take an event specific argument, but it's not required.
+当用户单击特价披萨时，弹出一个比萨饼自定义对话框，允许用户自定义他们的比萨饼并将其添加到他们的订单中。 要在 Blazor 应用中处理 DOM UI 事件，请指定要使用相应的 HTML 属性处理哪个事件，然后指定要调用的 C# 委托。委托可以选择采用事件特定的参数，但不是必需的。 
 
-In *Pages/Index.razor* add the following `@onclick` handler to the list item for each pizza special:
+在 *Pages/Index.razor* 添加下列 `@onclick` 处理程序添加到每个披萨特别列表项:
 
 ```html
 @foreach (var special in specials)
@@ -21,22 +21,21 @@ In *Pages/Index.razor* add the following `@onclick` handler to the list item for
 }
 ```
 
-Run the app and check that the pizza name is written to the browser console whenever a pizza is clicked. 
+运行应用程序，并检查每当点击比萨饼时，比萨饼名称是否写入浏览器控制台。
 
 ![@onclick-event](https://user-images.githubusercontent.com/1874516/77239615-f56dbf00-6b99-11ea-8535-ddcc8bc0d8ae.png)
 
+该符号`@`用于 Razor 文件中，以指示 C# 代码的开始，如果需要，用 paren 环绕 C# 代码以明确 C# 代码的开始和结束位置
 
-The `@` symbol is used in Razor files to indicate the start of C# code. Surround the C# code with parens if needed to clarify where the C# code begins and ends.
+更新 *Index.razor* 中的  `@code` ，添加一些其他字段，用于跟踪正在自定义的比萨饼以及比萨饼自定义对话框是否可见。
 
-Update the `@code` block in *Index.razor* to add some additional fields for tracking the pizza being customized and whether the pizza customization dialog is visible.
-
-```csharp
+ ```csharp
 List<PizzaSpecial> specials;
 Pizza configuringPizza;
 bool showingConfigureDialog;
 ```
 
-Add a `ShowConfigurePizzaDialog` method to the `@code` block for handling when a pizza special is clicked.
+添加 一个`ShowConfigurePizzaDialog` 方法到 `@code`  处理当一个特价披萨被点击时的逻辑
 
 ```csharp
 void ShowConfigurePizzaDialog(PizzaSpecial special)
@@ -53,21 +52,21 @@ void ShowConfigurePizzaDialog(PizzaSpecial special)
 }
 ```
 
-Update the `@onclick` handler to call the `ShowConfigurePizzaDialog` method instead of `Console.WriteLine`.
+更新`@onclick` 处理程序以调用 `ShowConfigurePizzaDialog`  方法替代 `Console.WriteLine`.
 
 ```html
 <li @onclick="@(() => ShowConfigurePizzaDialog(special))" style="background-image: url('@special.ImageUrl')">
 ```
 
-## Implement the pizza customization dialog
+## 实现披萨饼自定义对话框
 
-Now we need to implement the pizza customization dialog so we can display it when the user selects a pizza. The pizza customization dialog will be a new component that lets you specify the size of your pizza and what toppings you want, shows the price, and lets you add the pizza to your order.
+现在，我们需要实现披萨饼自定义对话框，以便我们可以在用户选择披萨饼时显示它。披萨自定义对话框将是一个新的组件，允许您指定披萨饼的大小和你想要的配料，显示价格，并允许您将披萨饼添加到您的订单。 
 
-Add a *ConfigurePizzaDialog.razor* file under the *Shared* directory. Since this component is not a separate page, it does not need the `@page` directive.
+在 *Shared* 文件夹下添加一个*ConfigurePizzaDialog.razor* 。由于此组件不是单独的页面，因此它不需要指令 `@page` 
 
-> Note: In Visual Studio, you can right-click the *Shared* directory in Solution Explorer, then choose *Add* -> *New Item*, then use the *Razor Component* item template.
+> 注意: 在 Visual Studio, 您可以右键单击解决方案资源管理器中的 *Shared*  目录，然后选择"添加->新项目"，然后使用Razor 组件项模板。
 
-The `ConfigurePizzaDialog` should have a `Pizza` parameter that specifies the pizza being configured. Component parameters are defined by adding a writable property to the component decorated with the `[Parameter]` attribute. Add a `@code` block to the `ConfigurePizzaDialog` with the following `Pizza` parameter:
+ `ConfigurePizzaDialog` 应具有指定正在配置的比萨饼的参数`Pizza`。  组件参数是通过向使用  属性修饰的组件添加可写属性来定义的。  在 `@code` 加入如下`ConfigurePizzaDialog` 的 `Pizza` 参数:
 
 ```csharp
 @code {
@@ -75,9 +74,9 @@ The `ConfigurePizzaDialog` should have a `Pizza` parameter that specifies the pi
 }
 ```
 
-> Note: Component parameter values need to have a setter and be declared `public` because they get set by the framework. However, they should *only* be set by the framework as part of the rendering process. Don't write code that overwrites these parameter values from outside the component, because then your component's state will be out of sync with its render output.
+>  注意：组件参数值需要具有setter 并声明`public`，因为它们由框架设置。 但是，它们只能由框架设置为呈现过程的一部分。 不要编写从组件外部覆盖这些参数值的代码，因为这样组件的状态将与其呈现输出不同步.
 
-Add the following basic markup for the `ConfigurePizzaDialog`:
+为 `ConfigurePizzaDialog` 添加以下基本标记:
 
 ```html
 <div class="dialog-container">
@@ -98,7 +97,7 @@ Add the following basic markup for the `ConfigurePizzaDialog`:
 </div>
 ```
 
-Update *Pages/Index.razor* to show the `ConfigurePizzaDialog` when a pizza special has been selected. The `ConfigurePizzaDialog` is styled to overlay the current page, so it doesn't really matter where you put this code block.
+更新 *Pages/Index.razor* 当一个特价披萨饼被选中时 展示 `ConfigurePizzaDialog` 。  `ConfigurePizzaDialog` 样式用于覆盖当前页面，因此将此代码块放在何处并不重要
 
 ```html
 @if (showingConfigureDialog)
@@ -107,16 +106,16 @@ Update *Pages/Index.razor* to show the `ConfigurePizzaDialog` when a pizza speci
 }
 ```
 
-Run the app and select a pizza special to see the skeleton of the `ConfigurePizzaDialog`.
+运行应用程序并选择一个比萨饼特别以查看`ConfigurePizzaDialog` 的效果.
 
 ![initial-pizza-dialog](https://user-images.githubusercontent.com/1874516/77239685-e3d8e700-6b9a-11ea-8adf-5ee8a69f08ae.png)
 
 
-Unfortunately at this point there's no functionality in place to close the dialog. We'll add that shortly. Let's get to work on the dialog itself.
+遗憾的是，此时没有实现可以关闭对话框，我们稍后再补充一下。让我们开始处理对话框本身。 
 
-## Data binding
+## 数据绑定
 
-The user should be able to specify the size of their pizza. Add markup to the body of `ConfigurePizzaDialog` for a slider that lets the user specify the pizza size. This should replace the existing `<form class="dialog-body"></form>` element.
+用户应该能够指定他们的比萨饼的大小。向 `ConfigurePizzaDialog` 添加标记表示滑块的内容，该滑块允许用户指定比萨饼大小。 用它替换文中的 `<form class="dialog-body"></form>` 元素.
 
 ```html
 <form class="dialog-body">
@@ -130,13 +129,13 @@ The user should be able to specify the size of their pizza. Add markup to the bo
 </form>
 ```
 
-Now the dialog shows a slider that can be used to change the pizza size. However it doesn't do anything right now if you use it.
+现在，对话框显示一个滑块，可用于更改比萨饼大小。但是，如果您使用它，它现在不会做任何事情。
 
 ![Slider](https://user-images.githubusercontent.com/1430011/57576985-eff40400-7421-11e9-9a1b-b22d96c06bcb.png)
 
-We want the value of the `Pizza.Size` to reflect the value of the slider. When the dialog opens, the slider gets its value from `Pizza.Size`. Moving the slider should update the pizza size stored in `Pizza.Size` accordingly. This concept is called two-way binding.
+我们希望`Pizza.Size` 的值反映滑块的值。当对话框打开时，滑块将从`Pizza.Size` 获取其值。 移动滑块应相应地更新存储在 `Pizza.Size` 中的比萨饼大小。此概念称为双向绑定。  
 
-If you wanted to implement two-way binding manually, you could do so by combining value and @onchange, as in the following code (which you don't actually need to put in your application, because there's an easier solution):
+如果要手动实现双向绑定，可以通过组合值和@onchange来实现，如以下代码（实际上不需要放入应用程序中，因为有一个更简单的解决方案）：
 
 ```html
 <input 
@@ -148,29 +147,29 @@ If you wanted to implement two-way binding manually, you could do so by combinin
     @onchange="@((ChangeEventArgs e) => Pizza.Size = int.Parse((string) e.Value))" />
 ```
 
-In Blazor you can use the `@bind` directive attribute to specify a two-way binding with this same behavior. The equivalent markup using `@bind` looks like this:
+在 Blazor 中，可以使用指令 `@bind` 属性指定具有此相同行为的双向绑定。  使用`@bind` 等效标记如下所示：  
 
 ```html
 <input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind="Pizza.Size"  />
 ```
 
-But if we use `@bind` with no further changes, the behavior isn't exactly what we want. Give it a try and see how it behaves. The update event only fires after the slider is released.
+但是，如果我们使用`@bind` 时没有进一步的改变，那么这种行为就不完全是我们想要的了。 更新事件仅在滑块发布后触发，试试看它如何做.
 
 ![Slider with default bind](https://user-images.githubusercontent.com/1874516/51804870-acec9700-225d-11e9-8e89-7761c9008909.gif)
 
-We'd prefer to see updates as the slider is moved. Data binding in Blazor allows for this by letting you specify which event triggers a change using the syntax `@bind:<eventname>`. So, to bind using the `oninput` event instead do this:
+我们希望在移动滑块时查看更新。Blazor 中的数据绑定允许这样做，允许您使用语法`@bind:<eventname>` 指定哪个事件触发更改。因此，要使用事件绑定，可以执行此操作`oninput`:
 
 ```html
 <input type="range" min="@Pizza.MinimumSize" max="@Pizza.MaximumSize" step="1" @bind="Pizza.Size" @bind:event="oninput" />
 ```
 
-The pizza size should now update as you move the slider.
+当您移动滑块时，披萨大小现在应该会更新。
 
 ![Slider bound to oninput](https://user-images.githubusercontent.com/1874516/51804899-28e6df00-225e-11e9-9148-caf2dd269ce0.gif)
 
-## Add additional toppings
+## 添加其他配料
 
-The user should also be able to select additional toppings on `ConfigurePizzaDialog`. Add a list property for storing the available toppings. Initialize the list of available toppings by making an HTTP GET request to the `/toppings` API.
+用户还应能够在 `ConfigurePizzaDialog` 上选择其他配料。添加用于存储可用配料的列表属性。通过向 API `/toppings` 发出 HTTP GET 请求，初始化可用配料列表 
 
 ```csharp
 @inject HttpClient HttpClient
@@ -191,7 +190,7 @@ The user should also be able to select additional toppings on `ConfigurePizzaDia
 }
 ```
 
-Add the following markup in the dialog body for displaying a drop down list with the list of available toppings followed by the set of selected toppings. Put this inside the `<form class="dialog-body">`, below the existing `<div>`."
+在对话框正文中添加以下标记，用于显示下拉列表，其中列出了可用配料，后跟所选配料集。把这个放在现有的`<div>`下面`<form class="dialog-body">`。
 
 ```html
 <div>
@@ -230,7 +229,7 @@ Add the following markup in the dialog body for displaying a drop down list with
 </div>
 ```
 
-Also add the following event handlers for topping selection and removal:
+还添加以下事件处理程序以进行配料选择和删除:
 
 ```csharp
 void ToppingSelected(ChangeEventArgs e)
@@ -255,23 +254,23 @@ void RemoveTopping(Topping topping)
 }
 ```
 
-You should now be able to add and remove toppings.
+现在，您应该能够添加和删除配料。
 
 ![Add and remove toppings](https://user-images.githubusercontent.com/1874516/77239789-c0626c00-6b9b-11ea-9030-0bcccdee6da7.png)
 
 
-## Component events
+## 组件事件
 
-The Cancel and Order buttons don't do anything yet. We need some way to communicate to the `Index` component when the user adds the pizza to their order or cancels. We can do that by defining component events. Component events are callback parameters that parent components can subscribe to.
+"取消"和"订购"按钮尚未执行任何操作。当用户将披萨添加到其订单或取消时，我们需要某种方式与 `Index` 组件进行通信。我们可以通过定义组件事件来做到这一点。组件事件是父组件可以订阅的回调参数。
 
-Add two parameters to the `ConfigurePizzaDialog` component: `OnCancel` and `OnConfirm`. Both parameters should be of type `EventCallback`.
+向组件`ConfigurePizzaDialog` 添加两个参数：`OnCancel`  和`OnConfirm` 。这两个参数应为 `EventCallback`类型。 
 
 ```csharp
 [Parameter] public EventCallback OnCancel { get; set; }
 [Parameter] public EventCallback OnConfirm { get; set; }
 ```
 
-Add `@onclick` event handlers to the `ConfigurePizzaDialog` that trigger the `OnCancel` and `OnConfirm` events.
+将`@onclick` 事件处理程序添加到`ConfigurePizzaDialog`  触发`OnCancel` 和 `OnConfirm` 事件 .
 
 ```html
 <div class="dialog-buttons">
@@ -283,7 +282,7 @@ Add `@onclick` event handlers to the `ConfigurePizzaDialog` that trigger the `On
 </div>
 ```
 
-In the `Index` component add an event handler for the `OnCancel` event that hides the dialog and wires it up to the `ConfigurePizzaDialog`.
+在`Index` 组件中为隐藏对话框并将该对话框`ConfigurePizzaDialog`连接到 `OnCancel` 的事件添加事件处理程序。
 
 ```html
 <ConfigurePizzaDialog Pizza="configuringPizza" OnCancel="CancelConfigurePizzaDialog" />
@@ -297,15 +296,15 @@ void CancelConfigurePizzaDialog()
 }
 ```
 
-Now when you click the dialog's Cancel button, `Index.CancelConfigurePizzaDialog` will execute, and then the `Index` component will rerender itself. Since `showingConfigureDialog` is now `false` the dialog will not be displayed.
+现在，当您单击对话框的"取消"按钮时，将执行`Index.CancelConfigurePizzaDialog`，然后 `Index` 组件将重新呈现自身。由于`showingConfigureDialog`是`false`现在对话框将不会显示。  
 
-Normally what happens when you trigger an event (like clicking the Cancel button) is that the component that defined the event handler delegate will rerender. You could define events using any delegate type like `Action` or `Func<string, Task>`. Sometimes you want to use an event handler delegate that doesn't belong to a component - if you used a normal delegate type to define the event then nothing will be rendered or updated.
+通常，触发事件（如单击"取消"按钮）时发生的情况是定义事件处理程序委托的组件将重新呈现。可以使用 任何委托类型（如 `Action` ）或者`Func<string, Task> 定义事件。有时，您希望使用不属于组件的事件处理程序委托 - 如果使用普通委托类型定义事件，则不会呈现或更新任何内容。 
 
-`EventCallback` is a special type that is known to the compiler that resolves some of these issues. It tells the compiler to dispatch the event to the component that contains the event handler logic. `EventCallback` has a few more tricks up its sleeve, but for now just remember that using `EventCallback` makes your component smart about dispatching events to the right place.
+`EventCallback` 是编译器已知的一种特殊类型，用于解决其中一些问题。 它告诉编译器将事件调度到包含事件处理程序逻辑的组件。 `EventCallback` 有更多的技巧，但现在只需记住，使用使你的组件明智地将事件调度到正确的位置。 
 
-Run the app and verify that the dialog now disappears when the Cancel button is clicked.
+运行应用并验证单击"取消"按钮时对话框是否现在消失。
 
-When the `OnConfirm` event is fired, the customized pizza should be added to the user's order. Add an `Order` field to the `Index` component to track the user's order.
+触发`OnConfirm`事件时，应将自定义披萨饼添加到用户订单中。向`Index`组件添加`Order`字段以跟踪用户的顺序。  
 
 ```csharp
 List<PizzaSpecial> specials;
@@ -314,7 +313,7 @@ bool showingConfigureDialog;
 Order order = new Order();
 ```
 
-In the `Index` component add an event handler for the `OnConfirm` event that adds the configured pizza to the order and wire it up to the `ConfigurePizzaDialog`.
+在 `Index` 组件中为将配置的披萨饼添加到订单并将其连接到`OnConfirm`的事件添加事件处理程序  `ConfigurePizzaDialog`。 
 
 ```html
 <ConfigurePizzaDialog 
@@ -333,13 +332,13 @@ void ConfirmConfigurePizzaDialog()
 }
 ```
 
-Run the app and verify the dialog now disappears when the Order button is clicked. We can't see yet that a pizza was added to the order because there's no UI that shows this information. We'll address that next.
+运行应用并验证对话框现在消失时，单击"订单"按钮。我们目前还无法看到订单中添加了披萨饼，因为没有显示此信息的 UI。接下来我们将讨论这一点。 
 
-## Display the current order
+## 显示当前订单
 
-Next we need to display the configured pizzas in the current order, calculate the total price, and provide a way to place the order.
+接下来，我们需要在当前订单中显示配置的披萨饼，计算总价，并提供下订单的方法。 
 
-Create a new `ConfiguredPizzaItem` component for displaying a configured pizza. It takes two parameters: the configured pizza, and an event for when the pizza was removed.
+创建新组件`ConfiguredPizzaItem`以显示配置的披萨饼。它需要两个参数：配置的披萨饼，以及删除披萨饼时的事件 
 
 ```html
 <div class="cart-item">
@@ -362,7 +361,7 @@ Create a new `ConfiguredPizzaItem` component for displaying a configured pizza. 
 }
 ```
 
-Add the following markup to the `Index` component just below the `main` div to add a right side pane for displaying the configured pizzas in the current order.
+将以下标记添加`Index`的`main` div 下方的，以添加右侧窗格，以按当前顺序显示配置的披萨饼。  
 
 ```html
 <div class="sidebar">
@@ -392,7 +391,7 @@ Add the following markup to the `Index` component just below the `main` div to a
 </div>
 ```
 
-Also add the following event handlers to the `Index` component for removing a configured pizza from the order and submitting the order.
+此外，向 `Index`组件添加以下事件处理程序，以便从订单中删除已配置的披萨饼并提交订单。 
 
 ```csharp
 void RemoveConfiguredPizza(Pizza pizza)
@@ -407,11 +406,11 @@ async Task PlaceOrder()
 }
 ```
 
-You should now be able to add and remove configured pizzas from the order and submit the order.
+现在，您应该能够从订单中添加和删除已配置的披萨饼并提交订单。 
 
 ![Order list pane](https://user-images.githubusercontent.com/1874516/77239878-b55c0b80-6b9c-11ea-905f-0b2558ede63d.png)
 
 
-Even though the order was successfully added to the database, there's nothing in the UI yet that indicates this happened. That's what we'll address in the next session.
+即使订单已成功添加到数据库中，UI 中尚未显示任何提示 发生了这种情况。这就是我们在下节课上将讨论的内容。
 
-Next up - [Show order status](03-show-order-status.md)
+Next up - [显示订单状态](03-show-order-status.md)
