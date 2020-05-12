@@ -317,18 +317,18 @@ N现在，我们拥有了所需的所有数据，我们可以使用 Razor 语法
 </div>
 ```
 
-This accounts for the three main states of the component:
+这说明了组件的三个主要状态：
 
-1. If the `OrderId` value is invalid (i.e., the server reported an error when we tried to retrieve the data)
-2. If we haven't yet loaded the data
-3. If we have got some data to show
+1. 如果该值`OrderId`无效（即，当我们尝试检索数据时，服务器报告了错误）
+2. 如果尚未加载数据
+3. 如果我们有一些数据要显示
 
 ![Order details status](https://user-images.githubusercontent.com/1874516/77241460-a7fc4c80-6baf-11ea-80c1-3286374e9e29.png)
 
 
-The last bit of UI we want to add is the actual contents of the order. To do this, we'll create another reusable component.
+要添加的最后一位 UI 是订单的实际内容。为此，我们将创建另一个可重用组件。
 
-Create a new file, `OrderReview.razor` inside the `Shared` directory, and have it receive an `Order` and render its contents as follows:
+在`Shared` 目录中创建新文件`OrderReview.razor`，并让它接收`Order`  和呈现其内容，如下所示：
 
 ```html
 @foreach (var pizza in Order.Pizzas)
@@ -361,7 +361,7 @@ Create a new file, `OrderReview.razor` inside the `Shared` directory, and have i
 }
 ```
 
-Finally, back in `OrderDetails.razor`, replace text `TODO: show more details` with your new `OrderReview` component:
+最后，返回 `OrderDetails.razor` ，将文本替换`TODO: show more details` 为新组件`OrderReview`：
 
 ```html
 <div class="track-order-body">
@@ -371,7 +371,7 @@ Finally, back in `OrderDetails.razor`, replace text `TODO: show more details` wi
 </div>
 ```
 
-(Don't forget to add the extra `div` with CSS class `track-order-details`, as this is necessary for correct styling.)
+（不要忘记`div` 使用 CSS 类添加额外`track-order-details`，因为这是正确样式所必需的）
 
 Finally, you have a functional order details display!
 
