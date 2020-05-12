@@ -6,25 +6,25 @@
 
 我们已经在仓库中为披萨店应用程序设置了初始解决方案，你将在 *save-points* 文件夹中找到[starting point](../save-points/00-get-started) ，以及这些课程的最终状态.
 
-> Note: If you copy the code from this workshop to a different location on your machine, be sure to also copy the *Directory.Build.props* file at the root of this repo in order to restore the appropriate package versions.
+> 注意：如果将代码从本Workshop 复制到计算机上的其他位置，请确保还复制此存储库 根目录中的Directory.Build.props文件，确保恢复适当的软件包版本。
 
-The solution already contains four projects:
+该解决方案已经包含四个项目:
 
 ![image](https://user-images.githubusercontent.com/1874516/77238114-e2072780-6b8a-11ea-8e44-de6d7910183e.png)
 
 
-- **BlazingPizza.Client**: This is the Blazor project. It contains the UI components for the app.
-- **BlazingPizza.Server**: This is the ASP.NET Core project hosting the Blazor app and also the backend services for the app.
-- **BlazingPizza.Shared**: Shared model types for the app.
-- **BlazingPizza.ComponentsLibrary**: A library of components and helper code to be used by the app in later sessions.
+- **BlazingPizza.Client**: 这是Blazor项目。它包含应用程序的UI组件.
+- **BlazingPizza.Server**: 这是承载Blazor应用程序以及该应用程序的后端服务的ASP.NET Core项目.
+- **BlazingPizza.Shared**: 应用程序的共享模型类型.
+- **BlazingPizza.ComponentsLibrary**: 在以后的课程中应用程序将使用的组件和帮助程序代码的库.
 
-The **BlazingPizza.Server** project should be set as the startup project.
+项目 **BlazingPizza.Server** 项目应设置为启动项目
 
-When you run the app, you'll see that it currently only contains a simple home page.
+运行该应用程序时，您会看到它当前仅包含一个简单的主页.
 
 ![image](https://user-images.githubusercontent.com/1874516/77238160-25fa2c80-6b8b-11ea-8145-e163a9f743fe.png)
 
-Open *Pages/Index.razor* in the **BlazingPizza.Client** project to see the code for the home page.
+打开项目 **BlazingPizza.Client** 的 *Pages/Index.razor*  查看首页代码.
 
 ```
 @page "/"
@@ -32,13 +32,13 @@ Open *Pages/Index.razor* in the **BlazingPizza.Client** project to see the code 
 <h1>Blazing Pizzas</h1>
 ```
 
-The home page is implemented as a single component. The `@page` directive specifies that the `Index` component is a routable page with the specified route.
+主页被实现为单个组件。 指令 `@page` 指定该 `Index` 组件是具有指定路由的可路由页面.
 
-## Display the list of pizza specials
+## 显示特价比萨列表
 
-First we'll update the home page to display the list of available pizza specials. The list of specials will be part of the state of the `Index` component.
+首先，我们将更新主页以显示可用披萨特价的列表。特价商品列表将成为 `Index` 组件状态的一部分。 
 
-Add a `@code` block to *Index.razor* with a list field to keep track of the available specials:
+添加一个代码块  `@code` 使用列表字段 到 *Index.razor* 以跟踪可用的特价披萨:
 
 ```csharp
 @code {
@@ -46,8 +46,9 @@ Add a `@code` block to *Index.razor* with a list field to keep track of the avai
 }
 ```
 
-The code in the `@code` block is added to the generated class for the component. The `PizzaSpecial` type is already defined for you in the Shared project.
+`@code` 块中的代码将添加到该组件的生成的类中。该`PizzaSpecial` 类型已在共享项目中为您定义 
 
+要获取可用的特价商品列表，我们需要在后端调用API。Blazor提供了HttpClient通过依赖项注入进行的预配置，该注入已使用正确的基地址进行设置。使用@inject指令将an HttpClient注入到Index组件中。
 To get the available list of specials we need to call an API on the backend. Blazor provides a preconfigured `HttpClient` through dependency injection that is already setup with the correct base address. Use the `@inject` directive to inject an `HttpClient` into the `Index` component.
 
 ```
