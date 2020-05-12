@@ -277,15 +277,15 @@ N现在，我们拥有了所需的所有数据，我们可以使用 Razor 语法
 
 代码有点复杂，所以在继续之前，请务必仔细了解它的各个方面。以下是一些注意事项：
 
-* This uses `OnParametersSet` instead of `OnInitialized` or `OnInitializedAsync`. `OnParametersSet` is another component lifecycle method, and it fires when the component is first instantiated *and* any time its parameters change value. If the user clicks a link directly from `myorders/2` to `myorders/3`, the framework will retain the `OrderDetails` instance and simply update its `OrderId` parameter in place.
-  * As it happens, we haven't provided any links from one "my orders" screen to another, so the scenario never occurs in this application, but it's still the right lifecycle method to use in case we change the navigation rules in the future.
-* We're using an `async void` method to represent the polling. This method runs for arbitrarily long, even while other methods run. `async void` methods have no way to report exceptions upstream to callers (because typically the callers have already finished), so it's important to use `try/catch` and do something meaningful with any exceptions that may occur.
-* We're using `CancellationTokenSource` as a way of signalling when the polling should stop. Currently it only stops if there's an exception, but we'll add another stopping condition later.
-* We need to call `StateHasChanged` to tell Blazor that the component's data has (possibly) changed. The framework will then re-render the component. There's no way that the framework could know when to re-render your component otherwise, because it doesn't know about your polling logic.
+* 这使用 `OnParametersSet`而不是`OnInitialized` 或 `OnParametersSet`。 是另一种组件生命周期方法，它在第一次实例化组件时触发，并且每当其参数更改值时，它将触发。如果用户单击直接从`myorders/2`  到`myorders/3` 的链接，则框架将保留实例`OrderDetails`，并仅将其参数`OrderId`更新到位
+ * 碰巧，我们没有提供从一个"my orders" 屏幕到另一个屏幕的任何链接，因此此应用程序中永远不会发生该方案，但将来更改导航规则时，它仍然是正确的生命周期方法。
+* 我们使用`async void`的方法来表示轮询。即使其他方法运行，此方法也会任意长时间运行。 `async void`方法无法向调用方报告上游的异常（因为调用方通常已完成），因此，对可能发生的任何异常使用`try/catch`并执行有意义的操作非常重要。
+* 我们使用`CancellationTokenSource`作为一种信号，告诉轮询应该停止。目前，它仅在出现异常时停止，但我们稍后将添加另一个停止条件。 
+* 我们需要调用`StateHasChanged` 告诉Blazor组件的数据（可能）已更改。然后，框架将重新呈现组件。框架无法知道何时重新呈现组件，因为它不知道轮询逻辑。 
 
-## Rendering the order details
+## 呈现订单详细信息
 
-OK, so we're getting the order details, and we're even polling and updating that data every few seconds. But we're still not rendering it in the UI. Let's fix that. Update your `<div class="main">` as follows:
+好了，我们得到订单详细信息，我们甚至每隔几秒轮询和更新数据。但是，我们仍未在 UI 中呈现它。让我们来解决这个问题。更新`<div class="main">`  如下： 
 
 ```html
 <div class="main">
