@@ -1,18 +1,19 @@
-# Refactor state management
+# 重构状态管理
 
-In this session we'll revisit some of the code we've already written and try to make it nicer. We'll also talk more about eventing and how events cause the UI to update.
+在本节中，我们将回顾一些我们已经编写好的代码，并尝试使其变得更好。我们还将讨论事件以及事件如何更新UI。
+ 
+## 问题
 
-## A problem
+您可能已经注意到了这一点，是我们的应用程序存在错误！由于我们以当前顺序将披萨饼列表存储在Index 组件上，因此如果用户离开 Index 页面，则用户的状态可能会丢失。要查看实际效果，请在当前订单中添加一个披萨饼（不要下订单）- 然后导航至MyOrders页面并返回 Index。当您回来时，您会注意到订单为空！ 
 
-You might have noticed this already, but our application has a bug! Since we're storing the list of pizzas in the current order on the Index component, the user's state can be lost if the user leaves the Index page. To see this in action, add a pizza to the current order (don't place the order yet) - then navigate to the MyOrders page and back to Index. When you get back, you'll notice the order is empty!
+## 解决方案
 
-## A solution
+我们将通过引入一些我们称为 *AppState pattern* 的东西来修复此错误。*AppState pattern* 将对象添加到DI容器，您将使用相关组件之间的协调状态。因为*AppState pattern* 是由DI容器管理的，所以即使UI发生更改，它也可以使组件寿命更长并保持状态。*AppState pattern* 的另一个好处是，它让界面（组件）与业务逻辑之间的更大分离。  
 
-We're going to fix this bug by introducing something we've dubbed the *AppState pattern*. The *AppState pattern* adds an object to the DI container that you will use to coordinate state between related components. Because the *AppState* object is managed by the DI container, it can outlive the components and hold on to state even when the UI changes. Another benefit of the *AppState pattern* is that it leads to greater separation between presentation (components) and business logic. 
+## 入门教程
 
-## Getting started
-
-Create a new class called `OrderState` in the Client Project root directory - and register it as a scoped service in the DI container. In Blazor WebAssembly applications, services are registered in the `Program` class via the `Main` method. Add the service just before the call to `await builder.Build().RunAsync();`.
+ 在Client Project根目录中创建一个新类`OrderState` - 并将其注册为DI容器中的作用域scoped 服务。在Blazor WebAssembly应用程序中， 通过`Program` 类的`Main`方法中注册。在调用`await builder.Build().RunAsync();` 之前添加服务
+ 
 
 ```csharp
 public static async Task Main(string[] args)
@@ -20,18 +21,18 @@ public static async Task Main(string[] args)
     var builder = WebAssemblyHostBuilder.CreateDefault(args);
     builder.RootComponents.Add<App>("app");
 
-    builder.Services.AddBaseAddressHttpClient();
+    builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
     builder.Services.AddScoped<OrderState>();
 
     await builder.Build().RunAsync();
 }
 ```
 
-> Note: the reason why we choose scoped over singleton is for symmetry with a server-side-components application. Singleton usually means *for all users*, where as scoped means *for the current unit-of-work*.
+> 注意：我们选择作用域而不是单例的原因是为了与服务器端组件应用程序对应。单例通常表示对所有用户，其中范围表示当前工作单元。 
 
-## Updating Index
+## 更新 Index
 
-Now that this type is registered in DI, we can `@inject` it into the `Index` page.
+现在，此类型已在DI中注册，我们可以将`@inject`其输入 `Index` 页面。  
 
 ```razor
 @page "/"
@@ -40,13 +41,14 @@ Now that this type is registered in DI, we can `@inject` it into the `Index` pag
 @inject NavigationManager NavigationManager
 ```
 
-Recall that `@inject` is a convenient shorthand to both retrieve something from DI by type, and define a property of that type.
+回想一下，这 `@inject` 是一种方便的快捷方式，既可以按类型从DI检索内容，又可以定义该类型的属性。  
 
-You can test this now by running the app again. If you try to inject something that isn't found in the DI container, then it will throw an exception and the `Index` page will fail to come up.
-
-Now, let's add properties and methods to this class that will represent and manipulate the state of an `Order` and a `Pizza`.
-
-Move the `configuringPizza`, `showingConfigureDialog` and `order` fields to be properties on the `OrderState` class. Make them `private set` so they can only be manipulated via methods on `OrderState`.
+您现在可以通过再次运行该应用程序进行测试。如果尝试注入在DI容器中找不到的内容，则它将引发异常，并且`Index`  页面将无法显示。
+ 
+现在，让我们向此类添加属性和方法，以表示和操纵一个 `Order`和一个`Pizza`的状态。
+ 
+将`configuringPizza`, `showingConfigureDialog` 和 `order` 移动到 `OrderState` 类的属性。 设置为private set，使其只能通过上的方法进行操作`OrderState`。
+ 
 
 ```csharp
 public class OrderState
@@ -59,7 +61,7 @@ public class OrderState
 }
 ```
 
-Now let's move some of the methods from the `Index` to `OrderState`. We won't move `PlaceOrder` into `OrderState` because that triggers a navigation, so instead we'll just add a `ResetOrder` method.
+现在，让我们将一些方法从`Index` 移至`OrderState`. 。我们不会把`PlaceOrder` 移进入`OrderState`， 因为这会触发导航，所以我们只添加一个`ResetOrder` 方法。
 
 ```csharp
 public void ShowConfigurePizzaDialog(PizzaSpecial special)
@@ -101,9 +103,9 @@ public void RemoveConfiguredPizza(Pizza pizza)
 }
 ```
 
-Remember to remove the corresponding methods from `Index.razor`. You must also remember to remove the `order`, `configuringPizza`, and `showingConfigureDialog` fields entirely from `Index.razor`, since you'll be getting the state data from the injected `OrderState`.
+请记住从`Index.razor` 中删除相应的方法 。你一定要记得从 `Index.razor` 删除`order`, `configuringPizza`, and `showingConfigureDialog`  ，因为你会得到从注入的状态数据`OrderState` 中得到
 
-At this point it should be possible to get the `Index` component compiling again by updating references to refer to various bits attached to `OrderState`. For example, the remaining `PlaceOrder` method in `Index.razor` should look like this:
+ 此时，应该有可能`Index` 通过更新引用以引用附加到的各个位来再次编译组件`OrderState`. 。例如，`Index.razor`中的 `PlaceOrder`方法 如下所示： 
 
 ```csharp
 async Task PlaceOrder()
@@ -115,27 +117,26 @@ async Task PlaceOrder()
 }
 ```
 
-Feel free to create convenience properties for things like `OrderState.Order` or `OrderState.Order.Pizzas` if it feels better to you that way.
+随意为诸如此类的东西 `OrderState.Order` 或者 `OrderState.Order.Pizzas` 对您感觉更好的事物创建便利属性。
 
-Try this out and verify that everything still works. In particular, verify that you've fixed the original bug: you can now add some pizzas, navigate to "My orders", navigate back, and your order has no longer been lost.
+试试看并验证一切是否仍然有效。特别是，请确认您已解决了原始错误：现在可以添加一些披萨，导航到“我的订单”，向后导航，并且您的订单不再丢失。 
 
-## Exploring state changes
+## 探索状态变化
 
-This is a good opportunity to explore how state changes and rendering work in Blazor, and how `EventCallback` solves some common problems. The details of what is happening become more complicated now that `OrderState` is involved.
+这是 探讨状态变化和渲染在Blazor中如何工作的好机会，以及`EventCallback`如何解决一些常见问题 。现在，`OrderState` 所涉及的事情的细节变得更加复杂。
 
-`EventCallback` tells Blazor to dispatch the event notification (and rendering) to the component that defined the event handler. If the event handler is not defined by a component (`OrderState`) then it will substitute the component that *hooked up* the event handler (`Index`).
+`EventCallback` 告诉Blazor将事件通知（和呈现）分派到定义事件处理程序的组件。如果事件处理程序不是由组件（`OrderState`）定义的，则它将替换挂接事件处理程序（`Index`）的组件。
+ 
+## 结论
 
+因此，让我们总结一下*AppState pattern* 提供的内容:
+- 将共享状态从组件外移到 `OrderState`
+- 组件调用方法以触发状态更改
+- `EventCallback`  负责发送变更通知
 
-## Conclusion
+我们还介绍了许多有关渲染和事件的信息:
+- 当参数更改或收到事件时，组件会重新渲染
+- 事件的分派取决于事件处理程序委托目标
+- 用 `EventCallback` 最灵活和友好的方式调度事件
 
-So let's sum up what the *AppState pattern* provides:
-- Moves shared state outside of components into `OrderState`
-- Components call methods to trigger a state change
-- `EventCallback` takes care of dispatching change notifications
-
-We've covered a lot of information as well about rendering and eventing:
-- Components re-render when parameters change or they receive an event
-- Dispatching of events depends on the event handler delegate target
-- Use `EventCallback` to have the most flexible and friendly behavior for dispatching events
-
-Next up - [Checkout without validation](05-checkout-with-validation.md)
+下一步 - [验证并结账](05-checkout-with-validation.md)
