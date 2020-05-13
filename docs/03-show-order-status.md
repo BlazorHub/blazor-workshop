@@ -373,46 +373,47 @@ N现在，我们拥有了所需的所有数据，我们可以使用 Razor 语法
 
 （不要忘记`div` 使用 CSS 类添加额外`track-order-details`，因为这是正确样式所必需的）
 
-Finally, you have a functional order details display!
+最后，您将看到功能订单明细显示！
 
 ![Order details](https://user-images.githubusercontent.com/1874516/77241512-2e189300-6bb0-11ea-9740-fe778e0ce622.png)
 
 
-## See it update in realtime
+## 查看实时更新
 
-The backend server will update the order status to simulate an actual dispatch and delivery process. To see this in action, try placing a new order, then immediately view its details.
+后端服务器将更新订单状态以模拟实际的调度和交付过程。要查看实际效果，请尝试下新订单，然后立即查看其详细信息。  
 
-Initially, the order status will be *Preparing*, then after 10-15 seconds the order status will change to *Out for delivery*, then 60 seconds later it will change to *Delivered*. Because `OrderDetails` polls for updates, the UI will update without the user having to refresh the page.
+最初，订单状态将为正在准备，然后10-15秒后，订单状态将更改为待交付，然后60秒后它将更改为已交付。因为`OrderDetails` 轮询更新，所以UI将更新而无需用户刷新页面。 
 
-## Remember to Dispose!
+## 记住需要 Dispose!
 
-If you deployed your app to production right now, bad things would happen. The `OrderDetails` logic starts a polling process, but doesn't end it. If the user navigated through hundreds of different orders (thereby creating hundreds of different `OrderDetails` instances), then there would be hundreds of polling processes left running concurrently, even though all except the last were pointless because no UI was displaying their results.
+如果您现在将应用程序部署到生产环境中，那么将会发生不好的事情。该 `OrderDetails` 逻辑开始轮询过程，但并没有结束。如果用户浏览了数百个不同的订单（从而创建了数百个不同的`OrderDetails` 实例），那么将有数百个轮询进程并发运行，即使最后一个轮询进程毫无意义，因为没有UI显示其结果。
+ 
 
-You can actually observe this chaos yourself as follows:
+您实际上可以自己观察到这种混乱，如下所示：
 
-1. Navigate to "my orders"
-2. Click "Track" on any order to get to its details
-3. Click "Back" to return to "my orders"
-4. Repeat steps 2 and 3 a lot of times (e.g., 20 times)
-5. Now, open your browser's debugging tools and look in the network tab. You should see 20 or more HTTP requests being issued every few seconds, because there are 20 or more concurrent polling processes.
+1. 导航到“我的订单”
+2. 单击任何订单上的“跟踪”以获取其详细信息
+3. 点击“返回”返回“我的订单”
+4. 重复执行步骤2和3多次（例如20次）
+5. 现在，打开浏览器的调试工具，然后在“网络”标签中查找。您应该看到每隔几秒钟发出20个或更多HTTP请求，因为有20个或更多并发轮询过程。 
 
-This is wasteful of client-side memory and CPU time, network bandwidth, and server resources.
+这浪费了客户端内存和CPU时间，网络带宽以及服务器资源。
 
-To fix this, we need to make `OrderDetails` stop the polling once it gets removed from the display. This is simply a matter of using the `IDisposable` interface.
+要解决此问题，一旦将其从显示屏中移除，我们需要 `OrderDetails` 停止轮询。这 是使用IDisposable 接口的原因。 
 
-In `OrderDetails.razor`, add the following directive at the top of the file, underneath the other directives:
+在 `OrderDetails.razor`, 将以下指令添加到文件顶部的其他指令下方:
 
 ```html
 @implements IDisposable
 ```
 
-Now if you try to compile the application, the compiler will complain:
+现在，如果您尝试编译应用程序，则编译器将报错:
 
 ```
 error CS0535: 'OrderDetails' does not implement interface member 'IDisposable.Dispose()'
 ```
 
-Resolve this by adding the following method inside the `@code` block:
+通过在`@code` 块内添加以下方法来解决此问题 :
 
 ```cs
 void IDisposable.Dispose()
@@ -421,25 +422,26 @@ void IDisposable.Dispose()
 }
 ```
 
-The framework calls `Dispose` automatically when any given component instance is torn down and removed from the UI.
+当任何给定的组件实例被拆除并从UI中删除时，框架会自动调用`Dispose`   
 
-Once you've put in this fix, you can try again to start lots of concurrent polling processes, and you'll see they no longer keep running after the component is gone. Now, the only component that continues to poll is the one that remains on the screen.
+修复此问题后，您可以再次尝试启动大量并发轮询过程，并且在组件消失后它们将不再继续运行。现在，继续轮询的唯一组件是屏幕上剩余的组件。
 
-## Automatically navigating to order details
 
-Right now, once users place an order, the `Index` component simply resets its state and their order appears to vanish without a trace. This is not very reassuring for users. We know the order is in the database, but users don't know that.
+## 自动导航到订单详细信息
 
-It would be nice if, once the order is placed, the app automatically navigated to the "order details" display for that order. This is quite easy to do.
+现在，一旦用户下订单，该 `Index` 组件将简单地重置其状态，并且其订单似乎消失无踪。这对于用户来说不是很放心。我们知道订单在数据库中，但是用户不知道。 
 
-Switch back to your `Index` component code. Add the following directive at the top:
+如果下订单后应用程序自动导航到该订单的“订单详细信息”显示，那将是很好的选择。这也是很容易做到。  
+
+切换回您的`Index` 组件代码。在顶部添加以下指令 :
 
 ```
 @inject NavigationManager NavigationManager
 ```
 
-The `NavigationManager` lets you interact with URIs and navigation state. It has methods to get the current URL, to navigate to a different one, and more.
+在`NavigationManager` 让你与URI和导航状态互动。它具有获取当前URL，导航到其他URL以及更多方法的方法。  
 
-To use this, update the `PlaceOrder` code so it calls `NavigationManager.NavigateTo`:
+要使用它，请更新`PlaceOrder`  代码，调用 `NavigationManager.NavigateTo`:
 
 ```csharp
 async Task PlaceOrder()
@@ -451,6 +453,6 @@ async Task PlaceOrder()
 }
 ```
 
-Now as soon as the server accepts the order, the browser will switch to the "order details" display and begin polling for updates.
+现在，服务器接受订单后，浏览器将切换到“订单详细信息”显示并开始轮询更新。  
 
-Next up - [Refactor state management](04-refactor-state-management.md)
+下一步 - [重构状态管理](04-refactor-state-management.md)
