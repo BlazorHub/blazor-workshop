@@ -1,4 +1,4 @@
-# JavaScript interop
+# JavaScript 互操作：在地图上实时跟踪订单状态
 
 Users of the pizza store can now track the status of their orders in real time. In this session we'll use JavaScript interop to add a real-time map to the order status page that answers the age old question, "Where's my pizza?!?".
 
