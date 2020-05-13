@@ -1,12 +1,12 @@
-# Checkout with Validation
+# 验证并结账
 
-If you take a look at the `Order` class in `BlazingPizza.Shared`, you might notice that it holds a `DeliveryAddress` property of type `Address`. However, nothing in the pizza ordering flow yet populates this data, so all your orders just have a blank delivery address. 
+如果您查看其中的`Order`类`BlazingPizza.Shared`，您可能会注意到它具有类型为`Address`的 `DeliveryAddress` 属性。但是，披萨饼订购流程中尚未填充任何数据，因此您的所有订单都具有空白的交货地址 
 
-It's time to fix this by adding a "checkout" screen that requires customers to enter a valid address.
+现在该添加一个“结帐”页面来解决此问题，该页面要求客户输入有效地址 
 
-## Inserting checkout into the flow
+## 插入结账到流程
 
-Start by adding a new page component, `Checkout.razor`, with a `@page` directive matching the URL `/checkout`. For the initial markup, let's display the details of the order using your `OrderReview` component:
+首先添加一个新的页面组件，`Checkout.razor`其`@page`指令与URL相匹配`/checkout`。对于初始标记，让我们使用您的`OrderReview` 组件显示订单的详细信息 :
 
 ```razor
 <div class="main">
@@ -23,7 +23,7 @@ Start by adding a new page component, `Checkout.razor`, with a `@page` directive
 </div>
 ```
 
-To implement `PlaceOrder`, copy the method with that name from `Index.razor` into `Checkout.razor`:
+要实现`PlaceOrder`，请将具有该名称的方法从`Index.razor` 复制 到`Checkout.razor` :
 
 ```razor
 @code {
@@ -37,9 +37,9 @@ To implement `PlaceOrder`, copy the method with that name from `Index.razor` int
 }
 ```
 
-As usual, you'll need to `@inject` values for `OrderState`, `HttpClient`, and `NavigationManager` so that it can compile, just like you did in `Index.razor`.
+与往常一样，您需要`@inject` 为 `OrderState`，`HttpClient`和`NavigationManager`赋值，以便可以像在`Index.razor`中那样进行编译 
 
-Next, let's bring customers here when they try to submit orders. Back in `Index.razor`, make sure you've deleted the `PlaceOrder` method, and then change the order submission button into a regular HTML link to the `/checkout` URL, i.e.:
+接下来，让我们将客户带到这里尝试提交订单。返回中`Index.razor`，确保已删除该 `PlaceOrder`方法，然后将订单提交按钮更改为指向`/checkout` 的常规HTML链接，即： 
 
 ```razor
 <a href="checkout" class="@(OrderState.Order.Pizzas.Count == 0 ? "btn btn-warning disabled" : "btn btn-warning")">
@@ -47,17 +47,17 @@ Next, let's bring customers here when they try to submit orders. Back in `Index.
 </a>
 ```
 
-> Note that we removed the `disabled` attribute, since HTML links do not support it, and added appropriate styling instead.
+> 请注意`disabled` ，由于HTML链接不支持该属性，因此我们删除了该属性，而是添加了适当的样式。 
 
-Now, when you run the app, you should be able to reach the checkout page by clicking the *Order* button, and from there you can click *Place order* to confirm it.
-
+现在，当您运行该应用程序时，您应该能够通过单击“ Order”按钮进入结帐页面，然后您可以在其中单击“下订单”进行确认。
+ 
 ![Confirm order](https://user-images.githubusercontent.com/1874516/77242251-d2530780-6bb9-11ea-8535-1c41decf3fcc.png)
 
-## Capturing the delivery address
+## 收货地址
 
-We've now got a good place to put some UI for entering a delivery address. As usual, let's factor this out into a reusable component. You never know when you're going to be asking for addresses in other places.
+现在，我们已经可以放置一些用于输入送货地址的用户界面了。与往常一样，让我们​​将其分解为可重用的组件。您永远都不知道何时要在其他地方询问地址。
 
-Create a new component in the `BlazingPizza.Client` project's `Shared` folder called `AddressEditor.razor`. It's going to be a general way to edit `Address` instances, so have it receive a parameter of this type:
+在名为的`BlazingPizza.Client` 项目`Shared`文件夹中创建一个新组件`AddressEditor.razor`。这将是编辑`Address`实例的一种通用方法，因此让它接收此类型的参数： 
 
 ```razor
 @code {
@@ -65,7 +65,7 @@ Create a new component in the `BlazingPizza.Client` project's `Shared` folder ca
 }
 ```
 
-The markup here is going to be a bit tedious, so you probably want to copy and paste this. We'll need input elements for each of the properties on an `Address`:
+这里的标记将有点乏味，因此您可能想要复制并粘贴它。我们需要为`Address`上每个属性输入元素 :
 
 ```razor
 <div class="form-field">
@@ -115,7 +115,7 @@ The markup here is going to be a bit tedious, so you probably want to copy and p
 }
 ```
 
-Finally, you can actually use your `AddressEditor` inside the `Checkout.razor` component:
+最后，您实际上可以`AddressEditor` 在 `Checkout.razor` c组件内部使用:
 
 ```razor
 <div class="checkout-cols">
@@ -130,24 +130,24 @@ Finally, you can actually use your `AddressEditor` inside the `Checkout.razor` c
 </div>
 ```
 
-Your checkout screen now asks for a delivery address:
+现在，您的结帐屏幕会要求您提供送货地址：
 
 ![Address editor](https://user-images.githubusercontent.com/1874516/77242320-79d03a00-6bba-11ea-9e40-4bf747d4dcdc.png)
 
-If you submit an order now, any address data that you entered will actually be saved in the database with the order, because it's all part of the `Order` object that gets serialized and sent to the server.
+如果您现在提交订单，那么您输入的任何地址数据实际上都会与订单一起保存在数据库中，因为它是`Order`序列化并发送到服务器的对象 。  
 
-If you're really keen to verify the data gets saved, consider downloading a tool such as [DB Browser for SQLite](https://sqlitebrowser.org/) to inspect the contents of your `pizza.db` file. But you don't strictly need to do this.
+如果您真的很想验证数据是否已保存，请考虑下载诸如[DB Browser for SQLite](https://sqlitebrowser.org/)  之类的工具来检查 `pizza.db`文件的内容。但是您不必严格执行此操作。  
 
-Alternatively, set a breakpoint inside `BlazingPizza.Server`'s `OrderController.PlaceOrder` method, and use the debugger to inspect the incoming `Order` object. Here you should be able to see the backend server receive the address data you typed in.
+可替换地，在`BlazingPizza.Server`的`OrderController.PlaceOrder`方法设置一个断点内，以及使用调试器来检查传入Order对象。在这里您应该能够看到后端服务器收到您键入的地址数据。 
 
-## Adding server-side validation
+## 添加服务器端验证
 
-As yet, customers can still leave the "delivery address" fields blank and merrily order a pizza to be delivered nowhere in particular. When it comes to validation, it's normal to implement rules both on the server and on the client:
+到目前为止，客户仍然可以将“送货地址”字段留空，并订购特价披萨。当涉及验证时，在服务器和客户端上均实施规则是很正常的：
 
- * Client-side validation is a courtesy to your users. It can provide instant feedback while they are editing a form. However, it can easily be bypassed by anyone with a basic knowledge of the browser dev tools.
- * Server-side validation is where the real enforcement is.
+ * 客户端验证是对您的用户的友好。他们可以在编辑表单时提供即时反馈。但是，任何具有浏览器开发工具基础知识的人都可以轻松绕过它。  
+ * 服务器端是真正执行验证的地方
 
-As such it's usually best to start by implementing server-side validation, so you know your app is robust no matter what happens client-side. If you go and look at `OrdersController.cs` in the `BlazingPizza.Server` project, you'll see that this API endpoint is decorated with the `[ApiController]` attribute:
+因此，通常最好从实施服务器端验证开始，因此无论客户端发生什么情况，您都知道您的应用程序很健壮。如果您  在 `BlazingPizza.Server` p项目中查看`OrdersController.cs`，您将看到此API端点已用[ApiController]属性修饰  
 
 ```csharp
 [Route("orders")]
@@ -158,9 +158,9 @@ public class OrdersController : Controller
 }
 ```
 
-`[ApiController]` adds various server-side conventions, including enforcement of `DataAnnotations` validation rules. So all we need to do is put some `DataAnnotations` validation rules onto the model classes.
+`[ApiController]` 添加了各种服务器端约定，包括强制执行`DataAnnotations`验证规则。因此，我们要做的就是将一些`DataAnnotations` 验证规则放到模型类上。   
 
-Open `Address.cs` from the `BlazingPizza.Shared` project, and put a `[Required]` attribute onto each of the properties except for `Id` (which is autogenerated, because it's the primary key) and `Line2`, since not all addresses need a second line. You can also place some `[MaxLength]` attributes if you wish, or any other `DataAnnotations` rules:
+打开 项目 `BlazingPizza.Shared`的 `Address.cs` , 然后将一个 `[Required]` 添加到每一个属性上除了 `Id` 因为它是主键，它是自动生成的) 和 `Line2`, 因为并非所有地址都需要第二行。 如果需要，还可以放置一些属性`[MaxLength]`，或任何其他  `DataAnnotations` 规则:
 
 
 ```csharp
@@ -192,23 +192,23 @@ namespace BlazingPizza
     }
 }
 ```
-
-Now, after you recompile and run your application, you should be able to observe the validation rules being enforced on the server. If you try to submit an order with a blank delivery address, then the server will reject the request and you'll see an HTTP 400 ("Bad Request") error in the browser's *Network* tab:
+现在，在重新编译并运行应用程序之后，您应该能够观察到服务器上强制执行的验证规则。如果您尝试使用空白的送货地址提交订单，则服务器将拒绝该请求，并且您将在浏览器的“ 网络”标签中看到HTTP 400（“错误请求”）错误：
 
 ![Server validation](https://user-images.githubusercontent.com/1874516/77242384-067af800-6bbb-11ea-8dd0-74f457d15afd.png)
 
-... whereas if you fill out the address fields fully, the server will allow you to place the order. Check that both of these cases behave as expected.
+... 如果您完全填写地址字段，服务器将允许您下订单。检查这两种情况是否均符合预期.
 
-## Adding client-side validation
+## 添加客户端验证
 
-Blazor has a comprehensive system for data entry forms and validation. We'll now use this to apply the same `DataAnnotations` rules on the client that are already being enforced on the server.
+Blazor拥有用于数据输入表单和验证的全面系统。现在，我们将使用它`DataAnnotations` 在服务器上已经实施的客户端上应用相同的规则。
 
-The way Blazor's forms and validation system works is based around something called an `EditContext`. An `EditContext` tracks the state of an editing process, so it knows which fields have been modified, what data has been entered, and whether or not the fields are valid. Various built-in UI components hook into the `EditContext` both to read its state (e.g., display validation messages) and to write to its state (e.g., to populate it with the data entered by the user).
+Blazor的表单和验证系统的工作方式基于`EditContext`。一个`EditContext`跟踪编辑过程的状态，因此它知道哪些字段已被修改，输入了哪些数据以及这些字段是否有效。各种内置的UI组件都挂接到这`EditContext`两者中，以读取其状态（例如，显示验证消息）并写入其状态（例如，使用用户输入的数据填充该状态）。
 
-### Using EditForm
+### 使用 EditForm
 
-One of the most important built-in UI components for data entry is the `EditForm`. This renders as an HTML `<form>` tag, but also sets up an `EditContext` to track what's going on inside the form. To use this, go to your `Checkout.razor` component, and wrap an `EditForm` around the whole of the contents of the `main` div:
+用于数据输入的最重要的内置UI组件之一是`EditForm`。这呈现为HTML`<form>` 标记，但还设置了一个 `EditContext` 来跟踪表单内部发生的情况。要使用此功能，请转到您的`Checkout.razor`组件，然后将`main` div把 `EditForm` 的全部内容包装起来 
 
+ 
 ```razor
 <div class="main">
     <EditForm Model="OrderState.Order.DeliveryAddress">
@@ -223,40 +223,39 @@ One of the most important built-in UI components for data entry is the `EditForm
 </div>
 ```
 
-You can have multiple `EditForm` components at once, but they can't overlap (because HTML's `<form>` elements can't overlap). By specifying a `Model`, we're telling the internal `EditContext` which object it should validate when the form is submitted (in this case, the delivery address).
+您可以一次拥有多个`EditForm` 组件，但是它们不能重叠（因为HTML的`<form>` 元素不能重叠）。通过指定一个`Model`，我们告诉内部 `EditContext` 在提交表单时应验证哪个对象（在本例中为送货地址）
 
-Let's start by displaying validation messages in a very basic (and not very attractive) way. Inside the `EditForm`, right at the bottom, add the following two components:
+让我们以一种非常基本（且不太吸引人）的方式显示验证消息开始。在`EditForm`底部的内，添加以下两个组件:
 
 ```razor
 <DataAnnotationsValidator />
 <ValidationSummary />
 ```
 
-The `DataAnnotationsValidator` hooks into events on the `EditContext` and executes `DataAnnotations` rules. If you wanted to use a different validation system other than `DataAnnotations`, you'd swap `DataAnnotationsValidator` for something else.
+ `DataAnnotationsValidator` 挂接到的事件 `EditContext` 和执行 `DataAnnotations` 规则. 如果您想使用`DataAnnotations`以外的其他验证系统 , 则可以替换 `DataAnnotationsValidator` 为其他组件.
 
-The `ValidationSummary` simply renders an HTML `<ul>` containing any validation messages from the `EditContext`.
+ `ValidationSummary` 简单地呈现一个HTML `<ul>` 其中包含来自 `EditContext`的任何验证消息.
 
-### Handling submission
+### 处理提交
 
-If you ran your application now, you could still submit a blank form (and the server would still respond with an HTTP 400 error). That's because your `<button>` isn't actually a `submit` button. Modify the `button` by adding `type="submit"` and **removing** its `@onclick` attribute entirely.
+如果您现在运行应用程序，则仍可以提交空白表格（服务器仍将以HTTP 400错误响应）。那是因为您`<button>` 实际上不是一个submit按钮。`<button>` 通过完全添加`type="submit"`和删除其 `@onclick`属性来修改。 
 
-Next, instead of triggering `PlaceOrder` directly from the button, you need to trigger it from the `EditForm`. Add the following `OnValidSubmit` attribute onto the `EditForm`:
+接下来， `PlaceOrder` 您需要直接从按钮触发，而不是直接从按钮触发EditForm。将以下 `OnValidSubmit`属性添加到 `EditForm` :
 
 ```razor
 <EditForm Model="OrderState.Order.DeliveryAddress" OnValidSubmit="PlaceOrder">
 ```
+您可能会猜到，它们`<button>`不再`PlaceOrder`直接触发。相反，该按钮只是要求提交表单。然后形式来决定是否它是有效的，如果是，那么它会调用`PlaceOrder`。 
 
-As you can probably guess, the `<button>` no longer triggers `PlaceOrder` directly. Instead, the button just asks the form to be submitted. And then the form decides whether or not it's valid, and if it is, *then* it will call `PlaceOrder`.
-
-Try it out: you should no longer be able to submit an invalid form, and you'll see validation messages (albeit unattractive ones) where you placed the `ValidationSummary`.
+尝试一下：您将不再能够提交无效的表单，并且您会在放置`ValidationSummary` 的位置看到验证消息（尽管没有吸引力） 
 
 ![Validation summary](https://user-images.githubusercontent.com/1874516/77242430-9d47b480-6bbb-11ea-96ef-8865468375fb.png)
 
-### Using ValidationMessage
+### 使用 ValidationMessage
 
-Obviously it's pretty disgusting to display all the validation messages so far away from the text boxes. Let's move them to better places.
+显然，将所有验证消息显示在离文本框很远的地方真是令人作呕。让我们将它们移到更好的地方  
 
-Start by removing the `<ValidationSummary>` component entirely. Then, switch over to `AddressEditor.razor`, and add separate `<ValidationMessage>` components next to each of the form fields. For example,
+首先完全删除 `<ValidationSummary>` 组件。然后，切换到`AddressEditor.razor`，并 `<ValidationMessage>` 在每个表单字段旁边添加单独的组件。例如， 
 
 ```razor
 <div class="form-field">
@@ -268,31 +267,31 @@ Start by removing the `<ValidationSummary>` component entirely. Then, switch ove
 </div>
 ```
 
-Do the equivalent for all of the form fields.
+对所有表单字段都执行等效操作。
 
-In case you're wondering, the syntax `@(() => Address.Name)` is a *lambda expression*, and we use this syntax as a way of describing which property to read the metadata from, without actually evaluating the property's value.
+你知道，该语法 `@(() => Address.Name)` 是一个 *lambda 表达式*, 我们使用此语法作为描述从哪个属性读取元数据的方式，而无需实际评估属性的值.
 
-Now things look a lot better:
+现在情况看起来好多了：
 
 ![Validation messages](https://user-images.githubusercontent.com/1874516/77242484-03ccd280-6bbc-11ea-8dd1-5d723b043ee2.png)
 
-If you want, you can improve the readability of the messages by specifying custom ones. For example, instead of displaying *The City field is required*, you could go to `Address.cs` and do this:
+如果需要，可以通过指定自定义消息来提高消息的可读性。例如，您可以转到 `Address.cs` 执行以下操作，而不是显示必填城市字段 :
 
 ```csharp
 [Required(ErrorMessage = "How do you expect to receive the pizza if we don't even know what city you're in?"), MaxLength(50)]
 public string City { get; set; }
 ```
 
-### Better validation UX using the built-in input components
+### 使用内置输入组件更好地验证UX
 
-The user experience is still not great, because once the validation messages are displayed, they remain on the screen until you click *Place order* again, even if you have edited the field values. Try it out and see how it feels pretty basic!
+用户体验仍然不是很好，因为一旦显示了验证消息，即使您已经编辑了字段值，验证消息仍然保留在屏幕上，直到您再次单击“下订单”为止。尝试一下，看看它的来感受一下！
 
-To improve on this, you can replace the low-level HTML input elements with Blazor's built-in input components. They know how to hook more deeply into the `EditContext`:
+为了对此进行改进，可以使用Blazor的内置输入组件替换低级HTML输入元素。他们知道如何更深入地了解`EditContext` :
 
-* When they are edited, they notify the `EditContext` immediately so it can refresh validation status.
-* They also receive notifications about validity from the `EditContext`, so they can highlight themselves as either valid or invalid as the user edits them.
+* 编辑它们时，它们会`EditContext` 立即通知即时消息，以便刷新验证状态  
+* 他们还从接收到有关有效性的通知`EditContext`，因此当用户进行编辑时，他们可以将自己突出显示为有效还是无效。  
 
-Go back to `AddressEditor.razor` once again. Replace each of the `<input>` elements with a corresponding `<InputText>`. For example,
+再次回到 `AddressEditor.razor` 将每个`<input>`元素替换为相应的`<InputText>` ，例如：
 
 ```html
 <div class="form-field">
@@ -304,26 +303,26 @@ Go back to `AddressEditor.razor` once again. Replace each of the `<input>` eleme
 </div>
 ```
 
-Do this for all the properties. The behavior is now much better! As well as having the validation messages update individually for each form field as you change focus, you'll get a neat "valid" or "invalid" highlight around each one:
+对所有属性执行此操作。行为现在好多了！更改焦点时，除了使验证消息针对每个表单字段单独更新之外，您还将在每个表单字段周围得到整洁的“有效”或“无效”突出显示：
 
 ![Input components](https://user-images.githubusercontent.com/1874516/77242542-ba30b780-6bbc-11ea-8018-be022d6cac0b.png)
 
-The green/red styling is achieved by applying CSS classes, so you can change the appearance of these effects or remove them entirely if you wish.
+绿色/红色样式是通过应用CSS类实现的，因此您可以更改这些效果的外观，也可以根据需要将其完全删除。
 
-`InputText` isn't the only built-in input component, though it is the only one we need in this case. Others include `InputCheckbox`, `InputDate`, `InputSelect`, and more.
+`InputText` 不是唯一的内置输入组件，尽管在这种情况下它是我们唯一需要的组件。其他的还包括 `InputCheckbox`, `InputDate`, `InputSelect`, 还有更多
 
-## Bonus challenge
+## 额外挑战  
 
-If you're keen and have time, can you prevent accidental double-submission of the form?
+如果您还有时间，可以防止意外再次提交表格吗？ 
 
-Currently, if it takes a while for the form post to reach the server, the user could click submit multiple times and send multiple copies of their order. Try declaring a `bool isSubmitting` property that, when `true`, results in the *Place order* button being disabled. Remember to set it back to `false` when the submission is completed (successfully or not), otherwise the user might get stuck.
+当前，如果表单提交后需要一段时间才能到达服务器，则用户可以多次单击“提交”并发送其订单的多个副本。尝试声明一个 `bool isSubmitting` 属性，该属性在时会`true`  禁用 “下订单”按钮 。请记住将其设置回 `false` 提交完成时（成功或不成功），否则用户可能会卡住。
 
-To check your solution works, you might want to slow down the server by adding the following line at the top of `PlaceOrder()` inside `OrdersController.cs`:
+为了检查您的解决方案是否有效，您可能希望通过在 `OrdersController.cs`的 `PlaceOrder()`内部顶部添加以下代码来减慢服务器速度
 
 ```cs
 await Task.Delay(5000); // Wait 5 seconds
 ```
 
-## Up next
+## 下一步
 
-Up next we'll add [authentication and authorization](https://github.com/dotnet-presentations/blazor-workshop/blob/master/docs/06-authentication-and-authorization.md)
+接下来，我们将添加 [身份验证和授权](06-authentication-and-authorization.md)
