@@ -1,12 +1,12 @@
 # JavaScript 互操作：在地图上实时跟踪订单状态
 
-Users of the pizza store can now track the status of their orders in real time. In this session we'll use JavaScript interop to add a real-time map to the order status page that answers the age old question, "Where's my pizza?!?".
+披萨店的用户现在可以实时跟踪其订单状态。在本课中，我们将使用JavaScript interop将实时地图添加到订单状态页面，以回答老的问题：“我的披萨在哪里？！？”
 
-## The Map component
+## 地图组件
 
-Included in the ComponentsLibrary project is a prebuilt `Map` component for displaying the location of a set of markers and animating their movements over time. We'll use this component to show the location of the user's pizza orders as they are being delivered, but first let's look at how the `Map` component is implemented.
-
-Open *Map.razor* and take a look at the code:
+ComponentsLibrary项目中包含一个预构建的 `Map`组件，用于显示一组标记的位置并随时间推移对其移动进行动画处理。我们将使用此组件显示用户的披萨饼订单在交付时的位置，但首先让我们看一下如何Map实现该组件。
+ 
+打开 *Map.razor* 并查看代码:
 
 ```csharp
 @using Microsoft.JSInterop
@@ -30,19 +30,20 @@ Open *Map.razor* and take a look at the code:
 }
 ```
 
-The `Map` component uses dependency injection to get an `IJSRuntime` instance. This service can be used to make JavaScript calls to browser APIs or existing JavaScript libraries by calling the `InvokeVoidAsync` or `InvokeAsync<TResult>` method. The first parameter to this method specifies the path to the JavaScript function to call relative to the root `window` object. The remaining parameters are arguments to pass to the JavaScript function. The arguments are serialized to JSON so they can be handled in JavaScript.
+该`Map` 组件使用依赖项注入来获取 `IJSRuntime` 实例。此服务可用于通过调用`InvokeVoidAsync` 或者 `InvokeAsync<TResult>` 方法来对浏览器API或现有JavaScript库进行JavaScript调用。此方法的第一个参数指定要相对于根`window` 对象调用的JavaScript函数的路径。其余参数是传递给JavaScript函数的参数。这些参数已序列化为JSON，因此可以在JavaScript中进行处理。
 
-The `Map` component first renders a `div` with a unique ID for the map and then calls the `deliveryMap.showOrUpdate` function to display the map in the specified element with the specified markers passed to the `Map` component. This is done in the `OnAfterRenderAsync` component lifecycle event to ensure that the component is done rendering its markup. The `deliveryMap.showOrUpdate` function is defined in the *wwwroot/deliveryMap.js* file, which then uses [leaflet.js](http://leafletjs.com) and [OpenStreetMap](https://www.openstreetmap.org/) to display the map. The details of how this code works isn't really important - the critical point is that it's possible to call any JavaScript function this way.
+该 `Map` 组件首先呈现一个`div` 与用于地图一个唯一的ID，然后调用`deliveryMap.showOrUpdate` 函数来显示与传递给指定的标志物的指定的元素映射`Map`组件。这是在`OnAfterRenderAsync` 组件生命周期事件中完成的，以确保组件完成了其标记的呈现。该`deliveryMap.showOrUpdate`函数在 *wwwroot/deliveryMap.js*  文件中定义，然后使用[leaflet.js](http://leafletjs.com) 和 [OpenStreetMap](https://www.openstreetmap.org/) 显示地图。这段代码的工作原理并不是很重要-关键点是可以用这种方式调用任何JavaScript函数。
+ 
+这些文件如何进入Blazor应用程序？对于Blazor库项目（使用 `Sdk="Microsoft.NET.Sdk.Razor"`），该`wwwroot/`文件夹中的任何文件都将与该库捆绑在一起。服务器项目将使用静态文件中间件自动提供这些文件。
 
-How do these files make their way to the Blazor app? For a Blazor library project (using `Sdk="Microsoft.NET.Sdk.Razor"`) any files in the `wwwroot/` folder will be bundled with the library. The server project will automatically serve these files using the static files middleware.
-
-The final link is for the page hosting the Blazor client app to include the desired files (in our case `.js` and `.css`). The `index.html` includes these files using relative URIs like `_content/BlazingPizza.ComponentsLibrary/localStorage.js`. This is the general pattern for references files bundled with a Blazor class library - `_content/<library name>/<file path>`.
+最终链接用于托管Blazor客户端应用程序的页面，其中包含所需的文件（在我们的示例中为`.js` 和 `.css`）。在`index.html` 使用像相对URI包含这些文 `_content/BlazingPizza.ComponentsLibrary/localStorage.js` 。这是与Blazor类库-捆绑在一起的引用文件的一般模式`_content/<library name>/<file path>`
 
 ---
 
-If you start typing in `Map`, you'll notice that the editor doesn't offer completion for it. This is because the binding between elements and components are governed by C#'s namespace binding rules. The `Map` component is defined in the `BlazingPizza.ComponentsLibrary.Map` namespace, which we don't have an `@using` for.
+如果您开始输入 `Map` ，您会注意到编辑器没有为此提供完成功能。这是因为元素和组件之间的绑定受C＃的命名空间绑定规则支配。该`Map` 组件在`BlazingPizza.ComponentsLibrary.Map`名称空间中定义，而我们没有`@using` 
 
-Add an `@using` for this namespace to the root `_Imports.razor` to bring this component into scope:
+在根目录中`_Imports.razor` 为此名称空间添加一个`@using`，以将该组件纳入范围 :
+
 ```razor
 @using System.Net.Http
 @using Microsoft.AspNetCore.Authorization
@@ -56,7 +57,7 @@ Add an `@using` for this namespace to the root `_Imports.razor` to bring this co
 @using BlazingPizza.ComponentsLibrary.Map
 ```
 
-Add the `Map` component to the `OrderDetails` page by adding the following just below the `track-order-details` `div`:
+通过在下方添加以下内容，将`Map`组件添加到 `OrderDetails` 页面  `track-order-details` `div` 下面:
 
 ```html
 <div class="track-order-map">
@@ -64,19 +65,19 @@ Add the `Map` component to the `OrderDetails` page by adding the following just 
 </div>
 ```
 
-*The reason why we haven't needed to add `@using`s for our components before now is that our root `_Imports.razor` already contains an `@using BlazingPizza.Shared` which matches the reusable components we have written.*
+*之所以现在不需要`@using` 为组件添加  的原因是，我们的根目录`_Imports.razor` 已经包含一个 `@using BlazingPizza.Shared` 与我们编写的可重用组件匹配的 *
 
-When the `OrderDetails` component polls for order status updates, an update set of markers is returned with the latest location of the pizzas, which then gets reflected on the map.
+当`OrderDetails` 组件轮询订单状态更新时，将返回一组更新的标记以及比萨的最新位置，然后将其反映在地图上
 
 ![Real-time pizza map](https://user-images.githubusercontent.com/1874516/51807322-6018b880-227d-11e9-89e5-ef75f03466b9.gif)
 
-## Add a confirm prompt for deleting pizzas
+## 删除披萨时添加确认提示 
 
-The JavaScript interop code for the `Map` component was provided for you. Next you'll add some JavaScript interop code of your own.
+`Map` 已为您提供了该组件的JavaScript互操作代码。接下来，您将添加一些自己的JavaScript互操作代码
+ 
+如果用户不小心从他们的订单中删除了披萨饼，而最终却没有购买，那就太可惜了。让我们在用户尝试删除披萨时添加确认提示。 
 
-It would be a shame if users accidentally deleted pizzas from their order (and ended up not buying them!). Let's add a confirm prompt when the user tries to delete a pizza. We'll show the confirm prompt using JavaScript interop.
-
-Add a static `JSRuntimeExtensions` class to the Client project with a `Confirm` extension method off of `IJSRuntime`. Implement the `Confirm` method to call the built-in JavaScript `confirm` function.
+将静态`JSRuntimeExtensions` 类添加到Client项目，并使用的`Confirm` 方法扩展`IJSRuntime` 。实现该`confirm`  方法以调用内置JavaScript `confirm` m函数。
 
 ```csharp
 public static class JSRuntimeExtensions
@@ -88,7 +89,7 @@ public static class JSRuntimeExtensions
 }
 ```
 
-Inject the `IJSRuntime` service into the `Index` component so that it can be used there to make JavaScript interop calls.
+将`IJSRuntime`  服务注入`Index` 组件，以便可以在其中进行JavaScript互操作调用。  
 
 ```razor
 @page "/"
@@ -98,7 +99,7 @@ Inject the `IJSRuntime` service into the `Index` component so that it can be use
 @inject IJSRuntime JS
 ```
 
-Add an async `RemovePizza` method to the `Index` component that calls the `Confirm` method to verify if the user really wants to remove the pizza from the order.
+将异步 `RemovePizza` 方法添加到`Index` 调用该`Confirm` 方法的组件，以验证用户是否真的要从订单中删除披萨。 
 
 ```csharp
 async Task RemovePizza(Pizza configuredPizza)
@@ -110,7 +111,7 @@ async Task RemovePizza(Pizza configuredPizza)
 }
 ```
 
-In the `Index` component update the event handler for the `ConfiguredPizzaItems` to call the new `RemovePizza` method. 
+在`Index` 组件中，更新事件处理程序`ConfiguredPizzaItems`以调用新`RemovePizza` 方法。  
 
 ```csharp
 @foreach (var configuredPizza in OrderState.Order.Pizzas)
@@ -119,10 +120,11 @@ In the `Index` component update the event handler for the `ConfiguredPizzaItems`
 }
 ```
 
-Run the app and try removing a pizza from the order.
+运行该应用，然后尝试从订单中删除披萨。
 
 ![Confirm pizza removal](https://user-images.githubusercontent.com/1874516/77243688-34b40400-6bca-11ea-9d1c-331fecc8e307.png)
 
-Notice that we didn't have to update the signature of `ConfiguredPizzaItem.OnRemoved` to support async. This is another special property of `EventCallback`, it supports both synchronous event handlers and asynchronous event handlers.
+注意，我们不必更新签名`ConfiguredPizzaItem.OnRemoved` 即可支持异步。这是的另一个特殊属性`EventCallback` ，它支持同步事件处理程序和异步事件处理程序。
 
-Next up - [Templated components](08-templated-components.md)
+
+下一步 - [验证用户身份并授权用户访问订单状态](07-authentication-and-authorization.md)

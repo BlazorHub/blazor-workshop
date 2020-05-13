@@ -596,4 +596,4 @@ builder.Services.AddApiAuthorization<PizzaAuthenticationState>(options =>
 
 Now when you sign out, the user should be brought back to the home page.
 
-Next up - [JavaScript interop](07-javascript-interop.md)
+下一步- [使用模板参数创建和使用组件 ](08-templated-components.md)
