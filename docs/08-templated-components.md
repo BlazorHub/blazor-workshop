@@ -1,35 +1,35 @@
-# Templated components
+# 模板化组件
 
-Let's refactor some of the original components and make them more reusable. Along the way we'll also create a separate library project as a home for the new components.
+让我们重构一些原始组件，使其更具可重用性。在此过程中，我们还将创建一个单独的库项目，作为新组件的主页。
 
-We're going to create a new project using the Razor Class Library template.
+我们将使用 Razor 类库模板创建新项目 
 
-## Creating a component library (Visual Studio)
+## 创建组件库 (Visual Studio)
 
-Using Visual Studio, right click on `Solution` at the very top of solution explorer, and choose `Add->New Project`. 
+使用 Visual Studio，右键单击解决方案资源管理器的顶部，然后选择  `Add->New Project`. 
 
-Then, select the Razor Class Library template.
+然后，选择 Razor 类库模板。
 
 ![image](https://user-images.githubusercontent.com/1430011/65823337-17990c80-e209-11e9-9096-de4cb0d720ba.png)
 
-Enter the project name `BlazingComponents` and click *Create*.
+输入项目名称`BlazingComponents` ，然后单击"创建"。
 
-## Creating a component library (command line)
+## 创建组件库 (command line)
 
-To make a new project using **dotnet** run the following commands from the directory where your solution file exists.
+使用**dotnet**创建新项目，请从解决方案文件所在的目录中运行以下命令 
 
 ```
 dotnet new razorclasslib -o BlazingComponents
 dotnet sln add BlazingComponents
 ```
 
-This should create a new project called `BlazingComponents` and add it to the solution file.
+这将创建一个调用的新项目 `BlazingComponents` 并将其添加到解决方案文件中。 
 
-## Understanding the library project
+## 了解库项目
 
-Open the project file by double-clicking on the *BlazingComponents* project name in *Solution explorer*. We're not going to modify anything here, but it would be good to understand a few things.
+通过双击解决方案资源管理器中的项目名称*BlazingComponents*"打开项目文件。我们不会修改这里的任何内容，但了解一些事情会很好。
 
-It looks like:
+它看起来像：
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk.Razor">
@@ -47,23 +47,23 @@ It looks like:
 </Project>
 ```
 
-There are a few things here worth understanding. 
+这里有一些事情值得了解。 
 
-Firstly, the package targets `netstandard2.0`. Blazor Server uses `netcoreapp3.1` and Blazor WebAssembly uses `netstandard2.1` - so targeting `netstandard2.0` means that it will work for either scenario.
+首先, 这个包是 `netstandard2.0`. Blazor Server 使用 `netcoreapp3.1` 和 Blazor WebAssembly 使用 `netstandard2.1` - 因此 `netstandard2.0`  意味着它将适用于任一方案。
 
-Additional, the `<RazorLangVersion>3.0</RazorLangVersion>` sets the Razor language version. Version 3 is needed to support components and the `.razor` file extension. 
+此外 `<RazorLangVersion>3.0</RazorLangVersion>` 设置了 Razor 语言版本， 版本 3 是支持 components 所需要和 `.razor` 文件扩展名. 
 
-Lastly the `<PackageReference />` element adds a package references to the Blazor component model.
+最后，该元素`<PackageReference />`添加了对 Blazor 组件模型的包引用。 
 
-## Writing a templated dialog
+## 编写模板化对话框
 
-We are going to revisit the dialog system that is part of `Index` and turn it into something that's decoupled from the application.
+我们将重构作为`Index` 其中一部分的对话框系统，并将其转换为与应用程序分离的内容 
 
-Let's think about how a *reusable dialog* should work. We would expect a dialog component to handle showing and hiding itself, as well as maybe styling to appear visually as a dialog. However, to be truly reusable, we need to be able to provide the content for the inside of the dialog. We call a component that accepts *content* as a parameter a *templated component*.
+让我们来思考一下可重用对话框应该如何工作。我们期望一个对话框组件来处理显示和隐藏自身，以及可能样式显示为对话框的可视方式。但是，要真正重用，我们需要能够为对话框内部提供内容。我们将接受*content* 为参数的组件称为模板化组件。
 
-Blazor happens to have a feature that works for exactly this case, and it's similar to how a layout works. Recall that a layout has a `Body` parameter, and the layout gets to place other content *around* the `Body`. In a layout, the `Body` parameter is of type `RenderFragment` which is a delegate type that the runtime has special handling for. The good news is that this feature is not limited to layouts. Any component can declare a parameter of type `RenderFragment`. We've also used this feature extensively in `App.razor`. All of the components used to handle routing and authorization are templated components.
+Blazor 碰巧有一个功能，正好适用于这种情况，它类似于布局的工作原理。回想一下，布局具有`Body`参数，并且布局可以放置在`Body`周围的其他内容。在布局中，类型`RenderFragment`的参数是运行时具有特殊处理的委托类型。好消息是，此功能并不仅限于布局。任何组件都可以声明类型 `RenderFragment`的参数。我们还在 `App.razor` 中广泛使用了此功能。用于处理路由和授权的所有组件都是模板化组件。
 
-Let's get started on this new dialog component. Create a new component file named `TemplatedDialog.razor` in the `BlazingComponents` project. Put the following markup inside `TemplatedDialog.razor`:
+让我们开始使用此新的对话框组件。创建项目`BlazingComponents`中命名的新组件文件`TemplatedDialog.razor`。将以下标记放在 `TemplatedDialog.razor` ： 
 
 ```html
 <div class="dialog-container">
@@ -73,20 +73,21 @@ Let's get started on this new dialog component. Create a new component file name
 </div>
 ```
 
-This doesn't do anything yet because we haven't added any parameters. Recall from before the two things we want to accomplish.
+这还不做任何事情，因为我们尚未添加任何参数。回顾一下我们想完成的两件事。
+ 
+1. 接受对话框的内容作为参数
+2. 如果对话框应该显示，则有条件地呈现  
 
-1. Accept the content of the dialog as a parameter
-2. Render the dialog conditionally if it is supposed to be shown
-
-First, add a parameter called `ChildContent` of type `RenderFragment`. The name `ChildContent` is a special parameter name, and is used by convention when a component wants to accept a single content parameter.
+首先，添加称为`ChildContent` 类型`RenderFragment`的参数。该名称`ChildContent`是一个特殊的参数名称，当组件想要接受单个内容参数时，约定使用该名称。  
 
 ```razor
 @code {
-    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] 
+    public RenderFragment ChildContent { get; set; }
 }
 ```
 
-Next, update the markup to *render* the `ChildContent` in the middle of the markup. It should look like this:
+接下来，更新标记 以呈现标记中间的`ChildContent`  标记。它应该如下所示：
 
 ```html
 <div class="dialog-container">
@@ -96,9 +97,9 @@ Next, update the markup to *render* the `ChildContent` in the middle of the mark
 </div>
 ```
 
-If this structure looks weird to you, cross-check it with your layout file, which follows a similar pattern. Even though `RenderFragment` is a delegate type, the way to *render* it not by invoking it, it's by placing the value in a normal expression so the runtime may invoke it.
+如果此结构看起来很奇怪，请用布局文件进行交叉检查，该文件遵循类似的模式。即`RenderFragment`是委托类型，而不是通过调用它来呈现它，它是通过将值放在法线表达式中，以便运行时可以调用它。
 
-Next, to give this dialog some conditional behavior, let's add a parameter of type `bool` called `Show`. After doing that, it's time to wrap all of the existing content in an `@if (Show) { ... }`. The full file should look like this:
+接下来，要为此对话框提供一些条件行为，让我们添加一个称为`bool` 类型的参数`Show`。执行此操作后，是时候将所有现有内容包装在`@if (Show) { ... }` 中。完整文件应如下所示： 
 
 ```html
 @if (Show)
@@ -111,28 +112,31 @@ Next, to give this dialog some conditional behavior, let's add a parameter of ty
 }
 
 @code {
-    [Parameter] public RenderFragment ChildContent { get; set; }
-    [Parameter] public bool Show { get; set; }
+    [Parameter] 
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter] 
+    public bool Show { get; set; }
 }
 ```
 
-Build the solution and make sure that everything compiles at this stage. Next we'll get down to using this new component.
+编译解决方案并确保所有内容在此阶段进行编译。接下来，我们将开始使用此新组件。 
 
-## Adding a reference to the templated library
+## 添加对模板化库的引用
 
-Before we can use this component in the `BlazingPizza.Client` project, we will need to add a project reference. Do this by adding a project reference from `BlazingPizza.Client` to `BlazingComponents`.
+在项目中使用此组件之前，我们需要`BlazingPizza.Client` 添加项目引用。为此，将项目引用从`BlazingComponents` 添加到`BlazingPizza.Client` 。
 
-Once that's done, there's one more minor step. Open the `_Imports.razor` in the topmost directory of `BlazingPizza.Client` and add this line at the end:
+完成此操作后，还有一个小步骤。打开`BlazingPizza.Client` 的最上面目录`_Imports.razor`，并在末尾添加此行： 
 
 ```html
 @using BlazingComponents
 ```
 
-Now that the project reference has been added, do a build again to verify that everything still compiles.
+现在已添加项目引用，请再次执行生成以验证所有内容是否仍然正常编译。
 
-## Another refactor
+## 另一个重构
 
-Recall that our `TemplatedDialog` contains a few `div`s. Well, this duplicates some of the structure of `ConfigurePizzaDialog`. Let's clean that up. Open `ConfigurePizzaDialog.razor`; it currently looks like:
+回顾一下 `TemplatedDialog`，我们的包含一些`div`。嗯，这复制了`ConfigurePizzaDialog` 的一些结构。让我们清理一下。打开`ConfigurePizzaDialog.razor`;它当前看起来像 :
 
 ```html
 <div class="dialog-container">
@@ -151,7 +155,7 @@ Recall that our `TemplatedDialog` contains a few `div`s. Well, this duplicates s
 </div>
 ```
 
-We should remove the outermost two layers of `div` elements since those are now part of the `TemplatedDialog` component. After removing these it should look more like:
+我们应该删除最外层的两层`div`元素，因为这些元素现在是组件 `TemplatedDialog` 的一部分。删除这些后，它看起来应该更像： 
 
 ```html
 <div class="dialog-title">
@@ -166,9 +170,9 @@ We should remove the outermost two layers of `div` elements since those are now 
 </div>
 ```
 
-## Using the new dialog
+## 使用新对话框
 
-We'll use this new templated component from `Index.razor`. Open `Index.razor` and find the block of code that looks like:
+我们将在`Index.razor`使用此新的模板化组件。打开`Index.razor`并找到如下所示的代码块 :
 
 ```html
 @if (OrderState.ShowingConfigureDialog)
@@ -180,7 +184,7 @@ We'll use this new templated component from `Index.razor`. Open `Index.razor` an
 }
 ```
 
-We are going to remove this and replace it with an invocation of the new component. Replace the block above with code like the following:
+我们将删除它，并将其替换为调用新组件。将上面的块替换为如下代码 :
 
 ```html
 <TemplatedDialog Show="OrderState.ShowingConfigureDialog">
@@ -191,37 +195,38 @@ We are going to remove this and replace it with an invocation of the new compone
 </TemplatedDialog>
 ```
 
-This is wiring up our new `TemplatedDialog` component to show and hide itself based on `OrderState.ShowingConfigureDialog`. Also, we're passing in some content to the `ChildContent` parameter. Since we called the parameter `ChildContent` any content that is placed inside the `<TemplatedDialog> </TemplatedDialog>` will be captured by a `RenderFragment` delegate and passed to `TemplatedDialog`. 
+这是使用了我们的新组件`TemplatedDialog`，以基于`OrderState.ShowingConfigureDialog`显示和隐藏自己 。此外，我们将一些内容传递给参数`ChildContent` 。由于我们调用了 参数，因此放置在`<TemplatedDialog> </TemplatedDialog>`  中的任何内容都将由委托`RenderFragment` 捕获并传递给`TemplatedDialog` 。
 
-> Note: A templated component may have multiple `RenderFragment` parameters. What we're showing here is a convenient convention when the caller wants to provide a single `RenderFragment` that represents the *main* content.
+> 注意：模板化组件可能有多个`RenderFragment`参数。我们在这里显示的是一个方便的约定，当调用方想要提供表示主要内容的单个`RenderFragment`时。 
 
-At this point it should be possible to run the code and see that the new dialog works correctly. Verify that this is working correctly before moving on to the next step.
+此时，应该可以运行代码，并查看新对话框是否正常工作。在继续下一步之前，请验证这是否正常工作。
 
-## A more advanced templated component
+## 更高级的模板化组件
 
-Now that we've done a basic templated dialog, we're going to try something more sophisticated. Recall that the `MyOrders.razor` page shows a list of orders, but it also contains three-state logic (loading, empty list, and showing items). If we could extract that logic into a reusable component, would that be useful? Let's give it a try.
+现在，我们已经完成了一个基本的模板化对话框，我们将尝试更复杂的内容。回顾一下 `MyOrders.razor`，该页显示订单列表，但它也包含三状态逻辑（加载、空列表和显示项目）。如果我们能将该逻辑提取到可重用的组件中，那有用吗？让我们试试看。
 
-Start by creating a new file `TemplatedList.razor` in the `BlazingComponents` project. We want this list to have a few features:
-1. Async-loading of any type of data
-2. Separate rendering logic for three states - loading, empty list, and showing items
+首先在项目中`BlazingComponents`创建新文件`TemplatedList.razor`。我们希望此列表具有一些功能 :
+1. 同步加载任何类型的数据
+2. 三种状态- 加载、空列表和显示项 的单独呈现逻辑  
 
-We can solve async loading by accepting a delegate of type `Func<Task<List<?>>>` - we need to figure out what type should replace **?**. Since we want to support any kind of data, we need to declare this component as a generic type. We can make a generic-typed component using the `@typeparam` directive, so place this at the top of `TemplatedList.razor`.
+我们可以通过接受类型 `Func<Task<List<?>>>`委托来解决异步加载问题-我们需要找出应该替换哪种类型**?** 由于我们想要支持任何类型的数据，我们需要声明此组件为泛型类型。我们可以使用指令`@typeparam` 创建泛型类型组件，因此，在`TemplatedList.razor`顶部放置该组件。
 
 ```html
 @typeparam TItem
 ```
 
-Making a generic-typed component works similarly to other generic types in C#, in fact `@typeparam` is just a convenient Razor syntax for a generic .NET type.
+使泛型类型组件的工作方式与 C# 中的其他泛型类型类似，实际上`@typeparam`只是泛型 .NET 类型的一个方便的 Razor 语法。
 
-> Note: We don't yet have support for type-parameter-constraints. This is something we're looking to add in the future.
+> 注意：我们尚未支持类型参数约束。这是我们希望在未来补充的内容。
 
-Now that we've defined a generic type parameter we can use it in a parameter declaration. Let's add a parameter to accept a delegate we can use to load data, and then load the data in a similar fashion to our other components.
+现在，我们已经定义了泛型类型参数，我们可以在参数声明中使用它。让我们添加一个参数来接受可用于加载数据的委托，然后以与其他组件类似的方式加载数据。
 
 ```html
 @code {
     List<TItem> items;
 
-    [Parameter] public Func<Task<List<TItem>>> Loader { get; set; }
+    [Parameter] 
+    public Func<Task<List<TItem>>> Loader { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -230,7 +235,7 @@ Now that we've defined a generic type parameter we can use it in a parameter dec
 }
 ```
 
-Since we have the data, we can now add the structure of each of the states we need to handle. Add the following markup to `TemplatedList.razor`:
+由于我们有数据，我们现在可以添加我们需要处理的每个状态的结构。将以下标记添加到 `TemplatedList.razor`:  
 
 ```html
 @if (items == null)
@@ -252,10 +257,9 @@ else
     </div>
 }
 ```
+现在，这是我们的三种对话状态，我们希望接受每个状态的内容参数，以便调用方可以插入所需的内容。为此，我们定义了三个参数`RenderFragment`。因为我们有多个参数`RenderFragment`，我们只会为每个参数提供自己的描述性名称，而不是调用它们。显示项目的内容需要采用参数`ChildContent`。我们可以使用 `RenderFragment<T>` 执行此操作。 
 
-Now, these are our three states of the dialog, and we'd like to accept a content parameter for each one so the caller can plug in the desired content. We do this by defining three `RenderFragment` parameters. Since we have multiple `RenderFragment` parameters we'll just give each one their own descriptive names instead of calling them `ChildContent`. The content for showing an item needs to take a parameter. We can do this by using `RenderFragment<T>`.
-
-Here's an example of the three parameters to add:
+下面是要添加的三个参数的示例：
 
 ```C#
     [Parameter] public RenderFragment Loading{ get; set; }
@@ -263,7 +267,7 @@ Here's an example of the three parameters to add:
     [Parameter] public RenderFragment<TItem> Item { get; set; }
 ```
 
-Now that we have some `RenderFragment` parameters, we can start using them. Update the markup we created earlier to plug in the correct parameter in each place.
+现在我们有一些参数`RenderFragment` ，我们可以开始使用它们。更新我们之前创建的标记，以在每个位置插入正确的参数。 
 
 ```html
 @if (items == null)
@@ -287,11 +291,11 @@ else
 }
 ```
 
-The `Item` accepts a parameter, and the way to deal with this is just to invoke the function. The result of invoking a `RenderFragment<T>` is another `RenderFragment` which can be rendered directly.
+`Item`接受参数，处理此参数的方法只是调用函数。调用的结果是 `RenderFragment<T>` 另一个 `RenderFragment`可以直接呈现的结果。  
 
-The new component should compile at this point, but there's still one thing we want to do. We want to be able to style the `<div class="list-group">` with another class, since that's what `MyOrders.razor` is doing. Adding small extensibiliy points to plug in additional css classes can go a long way for reusability.
+此时应编译新组件，但我们仍要执行一件事。我们希望能够用`<div class="list-group">`另一个类来设置样式，因为这是`MyOrders.razor`正在做的。添加小扩展点以插入其他 css 类可以在很大程度上获得可重用性。 
 
-Let's add another `string` parameter, and finally the functions block of `TemplatedList.razor` should look like:
+让我们添加另一个 `string`参数，最后 函数块应如下所示 :
 
 ```html
 @code {
@@ -310,7 +314,7 @@ Let's add another `string` parameter, and finally the functions block of `Templa
 }
 ```
 
-Lastly update the `<div class="list-group">` to contain `<div class="list-group @ListGroupClass">`. The complete file of `TemplatedList.razor` should now look like:
+最后更新 `<div class="list-group">` 以`<div class="list-group @ListGroupClass">` 包含 。`TemplatedList.razor` 的完整文件现在应如下所示：  
 
 ```html
 @typeparam TItem
@@ -351,11 +355,11 @@ else
 }
 ```
 
-## Using TemplatedList
+## 使用模板列表
 
-To use the new `TemplatedList` component, we're going to edit `MyOrders.razor`.
+要使用新组件`TemplatedList`，我们将编辑`MyOrders.razor`。
 
-First, we need to create a delegate that we can pass to the `TemplatedList` that will load order data. We can do this by keeping the line of code that's in `MyOrders.OnParametersSetAsync` and changing the method signature. The `@code` block should look something like:
+首先，我们需要创建一个委托，我们可以传递`TemplatedList` 给将加载订单数据的委托。我们可以通过保留 `MyOrders.OnParametersSetAsync`中的代码行并更改方法签名来执行此操作。`@code`块应如下所示：
 
 ```html
 @code {
@@ -379,9 +383,9 @@ First, we need to create a delegate that we can pass to the `TemplatedList` that
 }
 ```
 
-This matches the signature expected by the `Loader` parameter of `TemplatedList`, it's a `Func<Task<List<?>>>` where the **?** is replaced with `OrderWithStatus` so we are on the right track.
+这与 `TemplatedList`的 `Loader`参数的预期签名匹配，它是`Func<Task<List<?>>>` 替换`OrderWithStatus`的  **?** 的 ，因此我们处于正确的轨道上。 
 
-You can use the `TemplatedList` component now like so:
+现在可以使用组件`TemplatedList`，如下所示：
 
 ```html
 <div class="main">
@@ -390,9 +394,9 @@ You can use the `TemplatedList` component now like so:
 </div>
 ```
 
-The compiler will complain about not knowing the generic type of `TemplatedList`. The compiler is smart enough to perform type inference like normal C# but we haven't given it enough information to work with.
+编译器会抱怨不知道`TemplatedList` 的泛型类型。编译器足够聪明，可以像普通 C# 一样执行类型推理，但我们没有给予它足够的信息来处理它。
 
-Adding the `Loader` attribute should fix the issue.
+添加`Loader` 属性来解决此问题。  
 
 ```html
 <div class="main">
@@ -401,7 +405,7 @@ Adding the `Loader` attribute should fix the issue.
 </div>
 ```
 
-> Note: A generic-typed component can have its type-parameters manually specified as well by setting the attribute with a matching name to the type parameter - in this case it's called `TItem`. There are some cases where this is necessary so it's worth knowing.
+> 注意：泛型类型组件还可以手动指定其类型参数，也可以通过将具有匹配名称的属性设置为类型参数 （在本例中称为 `TItem`）在某些情况下，这是必要的，所以这是值得知道的。  
 
 ```html
 <div class="main">
@@ -410,13 +414,13 @@ Adding the `Loader` attribute should fix the issue.
 </div>
 ```
 
-We don't need to do this right now because the type can be inferred from `Loader`.
+我们现在不需要这样做，因为可以从`Loader` 推断类型。 
 
 -----
 
-Next, we need to think about how to pass multiple content (`RenderFragment`) parameters to a component. We've learned using `TemplatedDialog` that a single `[Parameter] RenderFragment ChildContent` can be set by nesting content inside the component. However this is just a convenient syntax for the most simple case. When you want to pass multiple content parameters, you can do this by nesting elements inside the component that match the parameter names.
+接下来，我们需要考虑如何将多个内容 （`RenderFragment`） 参数传递给组件。我们已经学习到`TemplatedDialog`，通过使用单个`[Parameter] RenderFragment ChildContent` 可以通过嵌套组件中的内容来设置。但是，对于最简单的情况来说，这只是一个方便的语法。如果要传递多个内容参数，可以通过嵌套与参数名称匹配的组件中的元素来执行此操作。 
 
-For our `TemplatedList` here's an example that sets each parameter to some dummy content:
+对于我们`TemplatedList`以下示例，该示例将每个参数设置为一些虚拟内容:
 
 ```html
 <div class="main">
@@ -432,7 +436,7 @@ For our `TemplatedList` here's an example that sets each parameter to some dummy
 </div>
 ```
 
-The `Item` parameter is a `RenderFragment<T>` - which accepts a parameter. By default this parameter is called `context`. If we type inside of `<Item>  </Item>` then it should be possible to see that `@context` is bound to a variable of type `OrderStatus`. We can rename the parameter by using the `Context` attribute:
+`Item` 参数是`RenderFragment<T>`  - 它接受参数。默认情况下，此参数称为`context` 。如果我们在 `<Item>  </Item>` 内部键入，那么应该可以看到它`@context`绑定到类型`OrderStatus`的变量。我们可以使用 `Context` 属性重命名参数：
 
 ```html
 <div class="main">
@@ -448,7 +452,7 @@ The `Item` parameter is a `RenderFragment<T>` - which accepts a parameter. By de
 </div>
 ```
 
-Now we want to include all of the existing content from `MyOrders.razor`, so putting it all together should look more like the following:
+现在，我们来看`MyOrders.razor` 包含的所有现有内容，因此，将所有内容放在一起应如下所示： 
 
 ```html
 <div class="main">
@@ -479,20 +483,20 @@ Now we want to include all of the existing content from `MyOrders.razor`, so put
 </div>
 ```
 
-Notice that we're also setting the `ListGroupClass` parameter to add the additional styling that was present in the original `MyOrders.razor`. 
+请注意，我们还在设置`ListGroupClass`参数以添加 `MyOrders.razor` 中存在的其他样式。
 
-There were a number of steps and new features to introduce here. Run this and make sure that it works correctly now that we're using the templated list.
+我们介绍了多步骤和新功能。运行此项并确保它正常工作，现在我们使用的模板化列表。
 
-To prove that the list is really working correctly we can try the following: 
-1. Delete the `pizza.db` from the `Blazor.Server` project to test the case where there are no orders
-2. Add an `await Task.Delay(3000);` to `LoadOrders` (also marking that method as `async`) to test the case where we're still loading
+为了验证列表确实工作正常，我们可以尝试以下操作: 
+1. 从项目`Blazor.Server`中删除 `pizza.db` 测试没有订单的情况
+2. 添加`await Task.Delay(3000);`  到 `LoadOrders`（方法也标记为`async` ） 以测试仍在加载的情况
 
-## Summary
+## 总结
 
-So what have we seen in this session?
+那么，我们在节课中学到了什么？
 
-1. It's possible to write components that accept *content* as a parameter - even multiple content parameters
-2. Templated components can be used to abstract things, like showing a dialog, or async loading of data
-3. Components can be generic types, which makes them more reusable
+1. 可以编写接受 *content* 作为参数的组件 - 甚至多个内容参数  
+2. 模板化组件可用于抽象内容，如显示对话框或数据异步加载
+3. 组件可以是泛型类型，这使得它们更具可重用性
 
-Next up - [Progressive web app](09-progressive-web-app.md)
+下一步 - [Progressive web app](09-progressive-web-app.md)

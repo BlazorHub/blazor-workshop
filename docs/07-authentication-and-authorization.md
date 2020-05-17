@@ -1,16 +1,16 @@
-# Authentication
+# 认证
 
-The application is working well. Users can place orders and track their order status. But there's one little problem: currently we don't distinguish between users at all. The "My orders" page lists *all* orders placed by *all* users, and anybody can view the state of anybody else's order. Your customers, and privacy regulations, may have an issue with this.
+现在我们的应用程序工作良好。用户可以下订单并跟踪其状态。但有一个小问题：目前我们根本不区分用户。"我的订单"页面列出了所有用户下的所有订单，任何人都可以查看其他人的订单状态。您的客户和隐私法规方面都有问题。
 
-The solution is *authentication*. We need a way for users to log in, so we know who's who. Then we can implement *authorization*, which is to enforce rules about who's allowed to do what.
+解决方案是身份验证。我们需要一种用户登录的方式，这样我们才能知道谁是谁。然后，我们可以实现授权，即强制实施关于允许谁做什么的规则。
 
-## Enforcement is on the server
+## 在服务器上提供验证
 
-The first and most important principle is that all *real* security rules must be enforced on the backend server. The client (UI) merely shows or hides options as a courtesy to well-behaved users, but a malicious user can always change the behavior of the client-side code.
+第一个也是最重要的原则是，必须在后端服务器上强制执行所有真正的安全规则。在客户端 （UI） 仅显示或隐藏选项，以表示对行为良好的用户的礼貌，但恶意用户始终可以更改客户端代码的行为。
 
-As such, we're going to start by enforcing some access rules in the backend server, even before the client code knows about them.
+因此，我们将首先在后端服务器中强制实施一些访问规则，甚至在客户端代码知道它们之前。
 
-Inside the `BlazorPizza.Server` project, you'll find `OrdersController.cs`. This is the controller class that handles incoming HTTP requests for `/orders` and `/orders/{orderId}`. To require that all requests to these endpoints come from authenticated users (i.e., people who have logged in), add the `[Authorize]` attribute to the `OrdersController` class:
+在项目 `BlazorPizza.Server` 中，你会发现 `OrdersController.cs`。这是处理  `/orders` 和 `/orders/{orderId}`的传入 HTTP 请求的控制器类。要要求指向这些终结点的所有请求都来自经过身份验证的用户（即已登录的用户），请将该属性`[Authorize]`添加到类`OrdersController` ：
 
 ```csharp
 [Route("orders")]
@@ -21,29 +21,30 @@ public class OrdersController : Controller
 }
 ```
 
-The `AuthorizeAttribute` class is located in the `Microsoft.AspNetCore.Authorization` namespace.
+`AuthorizeAttribute` 类位于命名空间`Microsoft.AspNetCore.Authorization` 中。 
 
-If you try to run your application now, you'll find that you can no longer place orders, nor can you retrieve details of orders already placed. Requests to these endpoints will return HTTP 302 redirects to a login URL that doesn't exist. That's good, because it shows that rules are being enforced on the server!
+如果您现在尝试运行应用程序，您会发现您无法下订单了，也无法查询已下订单的详细信息。对这些终结点的请求将返回 HTTP 302 重定向到不存在的登录 URL。这很好，因为它表明规则正在服务器上强制执行！
+
 
 ![Secure orders](https://user-images.githubusercontent.com/1874516/77242788-a9ce0c00-6bbf-11ea-98e6-c92e8f7c5cfe.png)
 
-## Tracking authentication state
+## 跟踪身份验证状态
 
-The client code needs a way to track whether the user is logged in, and if so *which* user is logged in, so it can influence how the UI behaves. Blazor has a built-in DI service for doing this: the `AuthenticationStateProvider`. Blazor provides an implementation of the `AuthenticationStateProvider` service and other related services and components based on [OpenID Connect](https://openid.net/connect/) that handle all the details of establishing who the user is. These services and components are provided in the Microsoft.AspNetCore.Components.WebAssembly.Authentication package, which has already been added to the client project for you.
+客户端代码需要一种方法来跟踪用户是否登录，如果已经登录，则哪个用户登录，这样它可能会影响 UI 的行为。Blazor 有一个内置的 DI 服务 `AuthenticationStateProvider`来执行此操作，Blazor 基于[OpenID Connect](https://openid.net/connect/) 提供服务和其他相关服务和组件的实现，用于处理确定用户身份的所有详细信息。这些服务和组件在 Microsoft.AspNetCore.Components.WebAssembly.Authentication 包中提供，该包已添加到客户端项目中。
 
-In broad terms, the authentication process implemented by these services looks like this:
+从广义上讲，这些服务实现的身份验证过程如下所示：
 
-* When a user attempts to login or tries to access a protected resource, the user is redirected to the app's login page (`/authentication/login`).
-* In the login page, the app prepares to redirect to the authorization endpoint of the configured identity provider. The endpoint is responsible for determining whether the user is authenticated and for issuing one or more tokens in response. The app provides a login callback to receive the authentication response.
-  * If the user isn't authenticated, the user is first redirected to the underlying authentication system (typically ASP.NET Core Identity).
-  * Once the user is authenticated, the authorization endpoint generates the appropriate tokens and redirects the browser back to the login callback endpoint (`/authentication/login-callback`).
-* When the Blazor WebAssembly app loads the login callback endpoint (`/authentication/login-callback`), the authentication response is processed.
-  * If the authentication process completes successfully, the user is authenticated and optionally sent back to the original protected URL that the user requested.
-  * If the authentication process fails for any reason, the user is sent to the login failed page (`/authentication/login-failed`), and an error is displayed.
+* 当用户尝试登录或尝试访问受保护的资源时，用户将被重定向到应用的登录页 (`/authentication/login`).
+* 在登录页中，应用准备重定向到配置的标识提供程序的授权终结点。endpoint 负责确定用户是否经过身份验证，并负责在响应中发出一个或多个令牌。该应用程序提供登录回调以接收身份验证响应.
+  * 如果用户未经过身份验证，则首先将用户重定向到基础身份验证系统(典型的是 ASP.NET Core Identity).
+  * 用户经过身份验证后，授权终结点将生成相应的令牌，并将浏览器重定向回登录回调endpoint (`/authentication/login-callback`).
+* 当 Blazor WebAssembly 应用加载登录回调终结点 (`/authentication/login-callback`)时，将处理身份验证响应。
+  * 如果身份验证过程成功完成，则对用户进行身份验证，并选择性地将发送回用户请求的原始受保护 
+  * 如果身份验证过程由于任何原因失败，则用户将发送到登录失败页面 (`/authentication/login-failed`)，并显示错误。 
 
-See also [Secure ASP.NET Core Blazor WebAssembly](https://docs.microsoft.com/aspnet/core/security/blazor/webassembly/) for additional details.
+有关详细信息请参阅 [Secure ASP.NET Core Blazor WebAssembly](https://docs.microsoft.com/aspnet/core/security/blazor/webassembly/)  
 
-To enable the authentication services, add a call to `AddApiAuthorization` in *Program.cs* in the client project:
+要启用身份验证服务，请向客户端项目中的*Program.cs* 添加调用`AddApiAuthorization` :
 
 ```csharp
 public static async Task Main(string[] args)
@@ -55,13 +56,13 @@ public static async Task Main(string[] args)
     builder.Services.AddScoped<OrderState>();
 
     // Add auth services
-    builder.Services.AddApiAuthorization();
+    builder.Services..AddApiAuthorization();
 
     await builder.Build().RunAsync();
 }
 ```
 
-The added services will be configured by default to use an identity provider on the same origin as the app. The server project for the Blazing Pizza app has already been setup to use [IdentityServer](https://identityserver.io/) as the identity provider and ASP.NET Core Identity for the authentication system:
+默认情况下，将配置添加的服务，以便使用与应用相同的源的标识提供程序。已设置"披萨饼"应用的服务端项目，以使用 [IdentityServer](https://identityserver.io/)作为标识提供程序，并吧ASP.NET Core Identity身份验证系统：
 
 *BlazingPizza.Server/Startup.cs*
 
@@ -85,7 +86,7 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-The server has also already been configured to issue tokens to the client app:
+服务器也已配置为向客户端应用颁发令牌：
 
 *BlazingPizza.Server/appsettings.json*
 
@@ -99,7 +100,7 @@ The server has also already been configured to issue tokens to the client app:
 }
 ```
 
-To orchestrate the authentication flow, add an `Authentication` component to the *Pages* directory in the client project:
+要协调身份验证流，请向客户端项目中的*Pages*目录添加组件`Authentication`： 
 
 *BlazingPizza.Client/Pages/Authentication.razor*
 
@@ -114,9 +115,9 @@ To orchestrate the authentication flow, add an `Authentication` component to the
 }
 ```
 
-The `Authentication` component is setup to handle the various authentication actions using the built-in `RemoteAuthenticatorView` component. The `Action` parameter is bound to the `{action}` route value, which is then passed to the `RemoteAuthenticatorView` component to handle. The `RemoteAuthenticatorView` handles all of the actions used as part of remote authentication. Valid actions include: register, login, profile, and logout. See [Customize the authentication user interface](https://docs.microsoft.com/aspnet/core/security/blazor/webassembly/additional-scenarios#customize-app-routes) for more details.
+设置该组件`Authentication` 以使用内置组件`RemoteAuthenticatorView`处理各种身份验证操作。`Action`参数绑定到路由值`{action}`，然后传递给组件 `RemoteAuthenticatorView`来处理。`RemoteAuthenticatorView` h处理作为远程身份验证一部分使用的所有操作。有效的操作包括：注册、登录、配置文件和注销。有关详细信息 [Customize the authentication user interface](https://docs.microsoft.com/aspnet/core/security/blazor/webassembly/additional-scenarios#customize-app-routes) 
 
-To flow the authentication state information through your app, you need to add one more component. In `App.razor`, surround the entire `<Router>` with a `<CascadingAuthenticationState>`:
+要通过应用流身份验证状态信息，您需要在 `App.razor`添加一个组件。在`<Router>` 中 `<CascadingAuthenticationState>`，
 
 ```html
 <CascadingAuthenticationState>
@@ -126,13 +127,13 @@ To flow the authentication state information through your app, you need to add o
 </CascadingAuthenticationState>
 ```
 
-At first this will appear to do nothing, but in fact this has made a *cascading parameter* available to all descendant components. A cascading parameter is a parameter that isn't passed down just one level in the hierarchy, but through any number of levels.
+起初，这似乎什么都不做，但实际上，这已使一个级联参数可用于所有后代组件。级联参数是一个参数，它不是在层次结构中只向下传递一个级别，而是通过任意数量的级别传递。
 
-Finally, you're ready to display something in the UI!
+最后，您已准备好在 UI 中显示内容了！
 
-## Displaying login state
+## 显示登录状态
 
-Create a new component called `LoginDisplay` in the client project's `Shared` folder, containing:
+在客户端项目的文件夹 `Shared` 中创建一个新组件`LoginDisplay`，其中包含：
 
 ```html
 @inject NavigationManager Navigation
@@ -166,13 +167,13 @@ Create a new component called `LoginDisplay` in the client project's `Shared` fo
 }
 ```
 
-`AuthorizeView` is a built-in component that displays different content depending on whether the user meets specified authorization conditions. We didn't specify any authorization conditions, so by default it considers the user authorized if they are authenticated (logged in), otherwise not authorized.
+`AuthorizeView` 是一个内置组件，根据用户是否符合指定的授权条件显示不同的内容。我们没有指定任何授权条件，因此默认情况下，如果用户经过身份验证（登录），则认为用户已授权，否则将不授权。
 
-You can use `AuthorizeView` anywhere you need UI content to vary by authorization state, such as controlling the visibility of menu entries based on a user's roles. In this case, we're using it to tell the user who they are, and conditionally show either a "log in" or "log out" link as applicable.
+您可以在需要 UI 内容因授权状态而异的任意位置使用`AuthorizeView` ，例如根据用户的角色控制菜单条目的可见性。在这种情况下，我们使用它来告诉用户他们是谁，并有条件地显示"登录"或"注销"链接（如适用）
 
-The links to register, log in, and see the user profile are normal links that navigate to the `Authentication` component. The sign out link is a button and has additional logic to prevent a forged request from logging the user out. Using a button ensures that the sign out can only be triggered by a user action, and the `SignOutSessionStateManager` service maintains state across the sign out flow to ensure the whole flow originated with a user action.
+注册、登录和查看用户配置文件的链接是导航到组件`Authentication` 的正常链接。注销链接是一个按钮，具有其他逻辑，以防止伪造的请求注销用户。使用按钮可确保注销只能由用户操作触发，并且服务`SignOutSessionStateManager`在整个注销流中保持状态，以确保整个流源自用户操作。
 
-Let's put the `LoginDisplay` in the UI somewhere. Open `MainLayout`, and update the `<div class="top-bar">` as follows:
+让我们把`LoginDisplay`  放在 UI 的某处。打开 `MainLayout` ，并更新`<div class="top-bar">` 如下所示： 
 
 ```html
 <div class="top-bar">
@@ -182,35 +183,35 @@ Let's put the `LoginDisplay` in the UI somewhere. Open `MainLayout`, and update 
 </div>
 ```
 
-## Register a user and log in
+## 注册用户并登录
 
-Try it out now. Run the app and register a new user.
+现在试试看。运行应用并注册新用户.
 
-Select Register on the home page.
+在主页上选择"注册"
 
 ![Select register](https://user-images.githubusercontent.com/1874516/78322144-b25d0580-7522-11ea-863d-59083c2bf111.png)
 
-Fill in an email address for the new user and a password.
+填写新用户的电子邮件地址和密码。
 
 ![Register a new user](https://user-images.githubusercontent.com/1874516/78322197-e6d0c180-7522-11ea-8728-2bd9cbd3c8f8.png)
 
-To compete the user registration, the user needs to confirm their email address. During development you can just click the link to confirm the account.
+完成用户注册，用户需要确认其电子邮件地址。在开发过程中，只需单击链接即可确认帐户。
 
 ![Email confirmation](https://user-images.githubusercontent.com/1874516/78389880-62208a80-7598-11ea-945a-d2ced76133d9.png)
 
-Once the user's email has been confirmed, select Login and enter the user's email address and password.
+确认用户的电子邮件后，选择"登录"并输入用户的电子邮件地址和密码。
 
 ![Select login](https://user-images.githubusercontent.com/1874516/78389922-7bc1d200-7598-11ea-8a10-e8bf8efa512e.png)
 
 ![Login](https://user-images.githubusercontent.com/1874516/78390092-cc392f80-7598-11ea-9d8e-562c2be1aad6.png)
 
-The user is logged in and redirected back to the home page.
+用户已登录并重定向回主页。
 
 ![Logged in](https://user-images.githubusercontent.com/1874516/78390115-d9561e80-7598-11ea-912b-e9dd71f787f2.png)
 
-## Request an access token
+## 请求访问令牌
 
-Even though you are now logged in, placing an order still fails because the HTTP request to place the order requires a valid access token. To request an access token use the `IAccessTokenProvider` service. If requesting an access token succeeds, add it to the request with a standard Authentication header with scheme Bearer. If the token request fails, use the `NavigationManager` service to redirect the user to the authorization service to request a new token.
+即使您现在已登录，但下订单仍然失败，因为 HTTP 请求下订单需要有效的访问令牌。要请求访问令牌，请使用该服务`IAccessTokenProvider` 。如果请求访问令牌成功，请将其添加到具有方案承载的标准身份验证标头的请求。如果令牌请求失败，请使用该服务 `NavigationManager`将用户重定向到授权服务以请求新令牌。
 
 *BlazingPizza.Client/Pages/Checkout.razor*
 
@@ -252,7 +253,7 @@ Even though you are now logged in, placing an order still fails because the HTTP
 }
 ```
 
-Update the `MyOrders` and `OrderDetails` components to also make authenticated HTTP requests.
+更新`MyOrders` 和`OrderDetails` 组件，以便也发出经过身份验证的 HTTP 请求。
 
 *BlazingPizza.Client/Pages/MyOrders.razor*
 
@@ -343,35 +344,36 @@ Update the `MyOrders` and `OrderDetails` components to also make authenticated H
 }
 ```
 
-## Authorizing access to specific order details
+## 授权访问特价订单详细信息
 
-Although the server requires authentication before accepting queries for order information, it still doesn't distinguish between users. All signed-in users can see the orders from all other signed-in users. We have authentication, but no authorization!
+尽管服务器在接受订单信息查询之前需要身份验证，但它仍然不区分用户。所有登录用户都可以看到来自所有其他登录用户的订单。我们有身份验证，但没有授权！
 
-To verify this, place an order while signed in with one account. Then sign out and back in using a different account. You'll still be able to see the same order details.
-
-This is easily fixed. Back in the `OrdersController` code, look for the commented-out line in `PlaceOrder`, and uncomment it:
+要验证这一点，请使用一个帐户登录后下订单。然后注销并使用其他帐户返回。您仍然可以看到相同的订单详细信息。
+ 
+这很容易修复。回到 `OrdersController`代码中，在`PlaceOrder` 中查找注释出行，然后取消注释： 
 
 ```cs
 order.UserId = GetUserId();
 ```
 
-Now each order will be stamped with the ID of the user who owns it.
+现在，每个订单都将加盖拥有该订单的用户的 ID。
 
-Next look for the commented-out `.Where` lines in `GetOrders` and `GetOrderWithStatus`, and uncomment both. These lines ensure that users can only retrieve details of their own orders:
+接下来，在 `GetOrders`中查找注释的行`GetOrderWithStatus` 和 `.Where`，以及取消注释。这些行确保用户只能检索其订单的详细信。 
 
 ```csharp
 .Where(o => o.UserId == GetUserId())
 ```
 
-Now if you run the app again, you'll no longer be able to see the existing order details, because they aren't associated with your user ID. If you place a new order with one account, you won't be able to see it from a different account. That makes the application much more useful.
+现在，如果再次运行应用，您将无法再看到现有的订单详细信息，因为它们与您的用户 ID 有关。如果使用一个帐户下新订单，您将无法从其他帐户看到它。这使得应用程序更加有用。
 
-## Ensure authentication before placing or viewing orders
 
-Now if you're logged in, you'll be able to place orders and see order status. But if you log out then make another attempt to place an order, bad things will happen. The server will reject the `POST` request, causing a client-side exception, but the user won't know why.
+## 在下订单或查看订单之前，确保进行身份验证
 
-To fix this on the checkout page, let's make the UI prompt the user to log in (if necessary) as part of placing an order.
+现在，如果您已登录，您将能够下订单并查看订单状态。但是，如果你注销，然后再次尝试下订单，问题就出现了。服务器将拒绝`POST` 请求，从而导致客户端异常，但用户又不知道原因。 
 
-In the `Checkout` page component, add an `OnInitializedAsync` with some logic to to check whether the user is currently authenticated. If they aren't, send them off to the login endpoint.
+要在结帐页上解决此问题，让我们让 UI 提示用户登录（如有必要）作为下订单的一部分
+
+在`Checkout` 页面组件中，`OnInitializedAsync`添加具有一些逻辑 ，以检查用户当前是否经过身份验证。如果没有，请将它们调转到登录终结点。 
 
 ```cs
 @code {
@@ -392,11 +394,12 @@ In the `Checkout` page component, add an `OnInitializedAsync` with some logic to
 }
 ```
 
-Try it out: now if you're logged out and get to the checkout screen, you'll be redirected to log in. The value for the `[CascadingParameter]` comes from your `AuthenticationStateProvider` via the `CascadingAuthenticationState` you added earlier.
+ 现在我们来试一下，如果您已注销并进入结帐屏幕，您将被重定向到登录。 `[CascadingParameter]` 的值来自您之前添加在`CascadingAuthenticationState` 的`AuthenticationStateProvider`。
 
-But do you notice something a bit awkward about it? It still shows the checkout UI briefly before the browser loads the login page. We could fix that  by wrapping the "checkout" UI inside an `AuthorizeView` like we did in the `LoginDisplay`. But there's an even easier way to ensure that anyone who navigates to the checkout page is logged in. We can enforce that the entire page requires authentication using the router.
+但是你注意到一些有点尴尬的事了吗？在浏览器加载登录页之前，它仍然简要显示结账 UI。我们可以通过在 `AuthorizeView`  中包装"签出"UI 来解决此问题。但是，有一种更简单的方法可以确保导航到结帐页的任何人都登录。我们可以强制整个页面需要使用路由器进行身份验证。
 
-To set this up, update *App.razor* to render an `AuthorizeRouteView` instead of a `RouteView` when the route is found.
+
+要设置此设置，请更新App.razor以在找到路由时呈现 `AuthorizeRouteView`而不是 `RouteView` 
 
 ```razor
 <CascadingAuthenticationState>
@@ -420,21 +423,21 @@ To set this up, update *App.razor* to render an `AuthorizeRouteView` instead of 
 </CascadingAuthenticationState>
 ```
 
-The `AuthorizeRouteView` will route navigations to the correct component, but only if the user is authorized. If the user is not authorized, the `NotAuthorized` content is displayed. You can also specify content to display while the `AuthorizeRouteView` is determining if the user is authorized.
+`AuthorizeRouteView`将导航路由到正确的组件，但前提是用户获得授权。如果用户未获得授权，则显示 `NotAuthorized`内容。您还可以指定要在 确定用户是否授权时显示的 `AuthorizeRouteView`内容。
 
-By default, all pages allow for anonymous access, but we can specify that the user must be logged in to access the checkout page by adding the `[Authorize]` attribute. You add attributes to a component using the `@attribute` directive.
+默认情况下，所有页面都允许匿名访问，但我们可以指定用户必须登录才能通过添加`[Authorize]`属性访问签出页。使用  `@attribute` 指令向组件添加属性。
 
-Update the `Checkout`, `MyOrders`, and `OrderDetails` pages to add the `[Authorize]` attribute;
+更新 `Checkout` 和`MyOrders` 页以添加属性 `[Authorize]` ;
 
 ```razor
 @attribute [Authorize]
 ```
 
-Now when you try to nativgate to any of these pages while signed out, you see the `NotAuthorized` content we setup in *App.razor*.
+现在，当您在注销时对尝试其中任何一个页面进行访问时，您会看到我们在*App.razor*中`NotAuthorized` 设置的内容。  
 
 ![Not authorized](https://user-images.githubusercontent.com/1874516/78410504-63b27880-75c1-11ea-8c2c-ab62c1c24596.png)
 
-Instead of telling the user they are unauthorized it would be better if we redirected them to the login page. To do that, add the following `RedirectToLogin` component:
+与其告诉用户他们是未经授权的，最好我们将它们重定向到登录页面。为此，添加以下组件`RedirectToLogin`：
 
 *BlazingPizza.Client/Shared/RedirectToLogin.razor*
 
@@ -448,7 +451,7 @@ Instead of telling the user they are unauthorized it would be better if we redir
 }
 ```
 
-Then replace the `NotAuthorized` content in *App.razor* with the `RedirectToLogin` component.
+然后，将*App.razor* 中`NotAuthorized`的内容替换为组件`RedirectToLogin` 。
 
 ```razor
 <CascadingAuthenticationState>
@@ -472,11 +475,12 @@ Then replace the `NotAuthorized` content in *App.razor* with the `RedirectToLogi
 </CascadingAuthenticationState>
 ```
 
-If you now try to access the "myorders" page while signed out, you are redirected to the login page. And once the user is logged in, they are redirected back to the page they were trying to access thanks to the `returnUrl` parameter.
+在注销后如果您现在尝试访问"我的订单"页面，您将被重定向到登录页。用户登录后，由于参数`returnUrl` ，他们将重定向回他们试图访问的页面。 
 
-It's a bit unfortunate that users can see the My Orders tab when they are not logged in. We can hide the My Orders tab for unauthenticated users using the `AuthorizeView` component.
+有点不幸的是，当用户未登录时，可以看到"我的订单"选项卡。我们可以为使用该`AuthorizeView`组件的未身份验证用户隐藏"我的订单"选项卡。
 
-Update `MainLayout` to wrap the My Orders `NavLink` in an `AuthorizeView`.
+
+更新以在`MainLayout` 中`AuthorizeView`包装"我的订单"`NavLink` 
 
 ```razor
 <AuthorizeView>
@@ -487,23 +491,23 @@ Update `MainLayout` to wrap the My Orders `NavLink` in an `AuthorizeView`.
 </AuthorizeView>
 ```
 
-The My Orders tab should now only be visible when the user is logged in.
+"我的订单"选项卡现在仅在用户登录时可见。
 
-We've now seen that there are three basic ways to interact with the authentication/authorization system inside components:
+现在，我们已经看到有三种基本方式与组件内的身份验证/授权系统进行交互：
 
- * Receive a `Task<AuthenticationState>` as a cascading parameter. This is useful when you want to use the `AuthenticationState` in procedural logic such as an event handler.
- * Wrap content in an `AuthorizeView`. This is useful when you just need to vary some UI content according to authorization status.
- * Place an `[Authorize]` attribute on a routable component. This is useful if you want to control the reachability of an entire page based on authorization conditions.
+ * 接收 `Task<AuthenticationState>` 作为级联参数的。如果要在过程逻辑（如事件处理程序）中使用 `AuthenticationState`  时，这非常有用 
+ * 在`AuthorizeView` 中包装内容。当您只需要根据授权状态更改某些 UI 内容时，这非常有用 
+ * 将属性`[Authorize]`放在可路由组件上。如果要根据授权条件控制整个页面的可访问性，这非常有用。 
 
-## Preserving order state across the redirection flow
+## 在重定向流中保留订单状态
 
-We've just introduced a pretty serious defect into the application. Since you're building a client-side SPA, the application state (such as the current order) is held in the browser's memory. When you redirect away to log in, that state is discarded. When the user is redirected back, their order has now become empty!
+我们刚刚在应用程序中引入了一个相当严重的缺陷。由于您要构建客户端 SPA，应用程序状态（如当前顺序）将一直位于浏览器的内存中。当您重定向到登录时，该状态将被丢弃。当用户被重定向回来时，他们的订单现在不见了！
+ 
+检查是否可以重现此 Bug。开始注销，然后创建订单。当您尝试下订单时，您将被重定向到登录页面。登录后，您将被重定向到结帐页面，但您的订单中的披萨现已丢失！这是基于浏览器的单页应用程序 （SPA） 的常见问题，但幸运的是，有一个直接的解决方案。
 
-Check you can reproduce this bug. Start logged out, and create an order. When you try to place the order, you get redirected to the login page. After logging in, you are then redirected to the checkout page, but your pizzas in your order have now gone missing! This is a common concern with browser-based single-page applications (SPAs), but fortunately there is a straightforward solution.
+我们将通过保持订单状态来修复 Bug。Blazor 的身份验证库使这一点直接做。
 
-We'll fix the bug by persisting the order state. Blazor's authentication library makes this straight forward to do.
-
-To define the state that we want persisted, add a `PizzaAuthenticationState` class that inherits from `RemoteAuthenticationState`. `RemoteAuthenticationState` is used by the authentication system to preserve state across the redirects, like the return URL. When you derive from this type, any public properties will be JSON serialized as part of the persisted state. Add an `Order` property to persist the current order.
+要定义我们想要持久化的状态，请添加从`RemoteAuthenticationState` 继承的类`PizzaAuthenticationState`。 身份验证系统用于保留重定向的状态，如返回 URL。从此类型派生时，任何公共属性都将作为持久状态的一部分序列化 JSON。添加`Order`属性以保留当前订单。
 
 ```csharp
 public class PizzaAuthenticationState : RemoteAuthenticationState
@@ -512,14 +516,15 @@ public class PizzaAuthenticationState : RemoteAuthenticationState
 }
 ```
 
-To configure the authentication system to use our `PizzaAuthenticationState` instead of the default `RemoteAuthenticationState`, update *Program.cs* as follows:
+要将身份验证系统配置为使用我们的 `PizzaAuthenticationState`而不是默认值`RemoteAuthenticationState`，请按如下方式更新 *Program.cs* :
 
 ```csharp
 // Add auth services
 builder.Services.AddApiAuthorization<PizzaAuthenticationState>();
 ```
 
-Now we need to add logic to persist the current order, and then reestablish the current order from the persisted state after the user has successfully logged in. To do that, update the `Authentication` component to use `RemoteAuthenticatorViewCore` instead of `RemoteAuthenticatorView`. Override `OnInitialized` to setup the order state to be persisted, and implement the `OnLogInSucceeded` callback to reestablish the order state. You'll need to add a `RepaceOrder` method to `OrderState` so that you can reestablish the saved order.
+现在，我们需要添加逻辑来保留当前订单，然后在用户成功登录后从保留状态重新建立当前订单。为此，请更新`Authentication`组件以使用 `RemoteAuthenticatorViewCore` 而不是 `RemoteAuthenticatorView`。重写`OnInitialized` 以设置要保留的订单状态，并实现 `OnLogInSucceeded`回调以重新建立订单状态。您需要添加`OrderState`方法`RepaceOrder`，以便可以重新建立保存的订单。
+
 
 *BlazingPizza.Client/Pages/Authentication.razor*
 
@@ -572,19 +577,19 @@ public class OrderState
 }
 ```
 
-Now if you try to place an order when signed out, you can see the order persisted in local storage during the authentication process:
+现在，如果您在注销时尝试下订单，则可以在身份验证过程中看到订单保留在本地存储中：
 
 ![Persisted order state](https://user-images.githubusercontent.com/1874516/78414685-30c4b080-75d2-11ea-98df-d1ac73548774.png)
 
-## Customize the logout experience
+## 自定义注销体验
 
-Currently, when the user signs out, they are brought to a generic logged out page:
+目前，当用户注销时，他们被带到一个通用注销页面：
 
 ![Logged out](https://user-images.githubusercontent.com/1874516/78414080-4684a680-75cf-11ea-808d-8d44a5f3941e.png)
 
-You can customize this page in your `Authentication` component by setting the `LogOutSucceeded` property on `RemoteAuthenticatorViewCore`.
+您可以通过在`RemoteAuthenticatorViewCore` 上设置`LogOutSucceeded` 属性来自定义 `Authentication` 组件中的此页面。
 
-But what if we want the user to be redirected back to the home page after they log out? To do that, we can configure in *Program.cs* which path to direct the user to when they successfully log out.
+但是，如果我们希望用户在注销后重定向回主页，该怎么办？为此，我们可以在*Program.cs*中配置在用户成功注销时引导到的路径。
 
 ```csharp
 // Add auth services
@@ -594,6 +599,6 @@ builder.Services.AddApiAuthorization<PizzaAuthenticationState>(options =>
 });
 ```
 
-Now when you sign out, the user should be brought back to the home page.
+现在，当您注销时，用户应返回主页。
 
 下一步- [使用模板参数创建和使用组件 ](08-templated-components.md)
