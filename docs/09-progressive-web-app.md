@@ -7,6 +7,7 @@ The term *Progressive Web App (PWA)* refers to web applications that make use of
  * Receiving push notifications
 
 Blazor uses standard web technologies, which means you can take advantage of these browser APIs, just as you could with other modern web frameworks.
+[Building a Progressive Web App with Blazor](https://devblogs.microsoft.com/visualstudio/building-a-progressive-web-app-with-blazor/)
 
 ## Adding a service worker
 
