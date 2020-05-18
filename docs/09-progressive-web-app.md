@@ -201,17 +201,17 @@ private static async Task SendNotificationAsync(Order order, NotificationSubscri
 }
 ```
 
-You can generate the cryptographic keys either locally on your workstation, or online using a tool such as https://tools.reactpwa.com/vapid. If you change the demo keys in the code above, remember to update the public key in `pushNotifications.js` too. You would also have to update the `someone@example.com` address in the C# code to match your custom key pair.
+您可以在你的电脑上本地生成加密密钥，也可以使用 https://tools.reactpwa.com/vapid 等工具联机生成加密密钥。 如果更改上述代码中的demo key，也要更新 `pushNotifications.js` 里的公钥。您还必须更新 C# 代码中的地址 `someone@example.com`，以匹配自定义密钥对。
 
-If you try this now, although the server will send the notification, the browser won't display it. That's because you haven't told your service worker how to handle incoming notifications.
+如果现在尝试这样做，尽管服务端发送了通知，但浏览器不会显示它。这是因为您没有告诉service worker 如何处理传入通知。 
 
-Try using the browser's dev tools to observe that a notification does arrive 10 seconds after you place an order. Use the dev tools *Application* tab and open the *Push Messaging* section, then click on the circle to *Start recording*:
+使用浏览器的开发工具来观察发出通知，确实在下订单后 10 秒到达。使用开发工具"应用程序"选项卡并打开"推送消息"部分，然后单击"开始录制"圆圈：
 
 ![image](https://user-images.githubusercontent.com/1101362/66354962-690a6f80-e95e-11e9-9b2c-c254c36e49b4.png)
 
-### Displaying notifications
+### 显示通知
 
-You're nearly there! All that remains is updating `service-worker.js` to tell it what to do with incoming notifications. Add the following event handler function:
+快完成了！剩下的只是更新`service-worker.js` ，告诉它如何处理传入的通知。添加以下事件处理程序函数  :
 
 ```js
 self.addEventListener('push', event => {
@@ -227,19 +227,19 @@ self.addEventListener('push', event => {
 });
 ```
 
-Remember that this doesn't take effect until after the next page load when the browser logs `Installing service worker...`. If you're struggling to get the service worker to update, you can use the dev tools *Application* tab, and under *Service Workers*, choose *Update* (or even *Unregister* so it re-registers on the next load).
+请记住，这不会生效，直到下一次页面重新加载，当看到浏览器日志`Installing service worker...`。如果您正在努力让*Service Workers*进行更新，则可以使用开发工具"应用程序"选项卡，并在*Service Workers*下选择"更新"（甚至取消注册，以便在下一次加载的时候上重新注册）。  
 
-With this in place, once you place an order, as soon as the order moves into *Out for delivery* status (after 10 seconds), you should receive a push notification:
+到此为止，当您下订单后，等订单订单进入"投递"状态（10 秒后），您应该收到推送通知： 
 
 ![image](https://user-images.githubusercontent.com/1101362/66355395-0bc2ee00-e95f-11e9-898d-23be0a17829f.png)
 
-If you're using either Chrome or the latest Edge browser, this will appear even if you're not still on the Blazing Pizza app, but only if your browser is running (or the next time you open the browser). If you're using the installed PWA, the notification should be delivered even if you're not running the app at all.
+如果您使用的是 Chrome 浏览器或最新的Edge 浏览器，即使您尚未在"Blazing Pizza "应用上，但仅在浏览器正在运行（或下次打开浏览器时）时，也会在浏览器上推送消息。如果您使用的是已安装的 PWA，则即使您根本不运行应用，也会推送通知。 
 
-## Handling clicks on notifications
+## 处理对通知的点击
 
-Currently if the user clicks the notification, nothing happens. It would be much better if it took them to the order status page for whichever order we're telling them about.
+当前，如果用户单击通知，则不发生任何操作。如果当用户单击消息时将其带到我们告诉他们的订单的订单状态页，情况会好得多。 
 
-Your server-side code already sends a `url` data parameter with the notification for this purpose. To use it, add the following to your `service-worker.js`:
+您的服务器端代码已在推送的通知消息里带上`url`参数。要使用它，请向 `service-worker.js`添加以下代码 。 
 
 ```js
 self.addEventListener('notificationclick', event => {
@@ -248,12 +248,12 @@ self.addEventListener('notificationclick', event => {
 });
 ```
 
-Now, once your service worker has updated, the next time you click on an incoming push notification it will take you to the relevant order status information. If you have the Blazing Pizza PWA installed, it will take you into the PWA, whereas if you don't it will take you to the page in your browser.
+现在，一旦您的service worker 完成更新，下次单击传入推送通知时，它将带您到相关的订单状态信息。如果你安装了Blazing Pizza  PWA，它会带你进入PWA，而如果你没有安装PWA，它会把你带到你的浏览器页面。 
 
-## Summary
+## 总结
 
-This chapter showed how, even though Blazor applications are written in .NET, you still have full access to the benefits of modern browser/JavaScript capabilities. You can create a OS-installable app that looks and feels as native as you like, while having the always-updated benefits of a web app.
+本章展示了即使是使用 .NET 编写的 Blazor 应用程序，您仍可以完全访问现代浏览器/JavaScript 功能的优势。您可以构建一个操作系统可安装的应用，该应用的外观和感觉与您喜欢的本机应用一样，同时具有 Web 应用始终更新的优势。 
 
-If you want to go further on the PWA journey, as a more advanced challenge you could consider adding offline support. It's relatively easy to get the basics working - just see [The Offline Cookbook](https://developers.google.com/web/fundamentals/instant-and-offline/offline-cookbook) for a variety of service worker samples representing different offline strategies, any of which can work with a Blazor app. However, since Blazing Pizza requires server APIs to do anything interesting like view or place orders, you would need to update your components to provide a sensible behavior when the network isn't reachable (for example, use cached data if that makes sense, or provide UI that appears if you're offline and try to do something that requires network access).
+如果您想在 PWA 之旅中更进一步，作为更高级的挑战，您可以考虑添加脱机支持。让基础知识工作相对容易 - 只需查看[The Offline Cookbook](https://developers.google.com/web/fundamentals/instant-and-offline/offline-cookbook)代表不同脱机策略的各种服务辅助角色示例的脱机说明书，其中任何一个都可以用于 Blazor 应用程序。但是，由于Blazing Pizza 需要服务器 API 执行任何有趣的操作（如查看或下订单），因此您需要更新组件，以在网络无法访问时提供明智的行为（例如，如果这样做有意义，请使用缓存的数据，或者提供脱机时显示的 UI，并尝试执行需要网络访问的事情）。
 
-Next up - [Publish and deploy](10-publish-and-deploy.md)
+下一步 - [发布和部署]](10-publish-and-deploy.md)
