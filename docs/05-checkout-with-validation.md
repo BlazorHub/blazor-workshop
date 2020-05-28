@@ -192,6 +192,7 @@ namespace BlazingPizza
     }
 }
 ```
+
 现在，在重新编译并运行应用程序之后，您应该能够观察到服务器上强制执行的验证规则。如果您尝试使用空白的送货地址提交订单，则服务器将拒绝该请求，并且您将在浏览器的“ 网络”标签中看到HTTP 400（“错误请求”）错误：
 
 ![Server validation](https://user-images.githubusercontent.com/1874516/77242384-067af800-6bbb-11ea-8dd0-74f457d15afd.png)

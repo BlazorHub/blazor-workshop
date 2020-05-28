@@ -350,7 +350,7 @@ public void ConfigureServices(IServiceCollection services)
 
 要验证这一点，请使用一个帐户登录后下订单。然后注销并使用其他帐户返回。您仍然可以看到相同的订单详细信息。
  
-这很容易修复。回到 `OrdersController`代码中，在`PlaceOrder` 中查找注释出行，然后取消注释： 
+这很容易修复。回到 `OrdersController`代码中，在`PlaceOrder` 中查找注释出行，然后取消注释：
 
 ```cs
 order.UserId = GetUserId();
@@ -397,7 +397,6 @@ order.UserId = GetUserId();
  现在我们来试一下，如果您已注销并进入结帐屏幕，您将被重定向到登录。 `[CascadingParameter]` 的值来自您之前添加在`CascadingAuthenticationState` 的`AuthenticationStateProvider`。
 
 但是你注意到一些有点尴尬的事了吗？在浏览器加载登录页之前，它仍然简要显示结账 UI。我们可以通过在 `AuthorizeView`  中包装"签出"UI 来解决此问题。但是，有一种更简单的方法可以确保导航到结帐页的任何人都登录。我们可以强制整个页面需要使用路由器进行身份验证。
-
 
 要设置此设置，请更新App.razor以在找到路由时呈现 `AuthorizeRouteView`而不是 `RouteView` 
 
